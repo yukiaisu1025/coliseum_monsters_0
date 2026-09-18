@@ -1,0 +1,2677 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>コロシアムモンスターズ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;700;800&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#171019;
+  --stone-deep:#1c1420;
+  --stone-mid:#2c2130;
+  --stone-hi:#453a4e;
+  --gold:#e8ab45;
+  --gold-hi:#f5c876;
+  --crimson:#c0453b;
+  --parchment:#f3e7c9;
+  --parchment-dim:#d9c99f;
+  --heart:#e5637f;
+  --ok:#5fae7f;
+  --w1:#7fa955; --w2:#dc9c46; --w3:#9dc3da; --w4:#a17a58; --w5:#c9d9e6; --w6:#d1552f; --w7:#c9a13f;
+  --radius:18px;
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse at 50% -10%, #3a2c40 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 110%, #2a1e2e 0%, transparent 55%),
+    var(--stone-deep);
+  color:var(--parchment);
+  font-family:'Zen Maru Gothic', sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+}
+#app{
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  background:
+    linear-gradient(180deg, rgba(69,58,78,.35), transparent 12%),
+    var(--stone-deep);
+  border-left:1px solid rgba(232,171,69,.12);
+  border-right:1px solid rgba(232,171,69,.12);
+  overflow-x:hidden;
+}
+h1,h2,h3{font-family:'Shippori Mincho B1', serif; margin:0; letter-spacing:.02em;}
+p{margin:0;}
+button{font-family:'Zen Maru Gothic', sans-serif; border:none; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+::selection{background:var(--gold); color:var(--ink);}
+
+/* ---------- shared bits ---------- */
+.screen{padding:18px 18px 32px; display:flex; flex-direction:column; gap:14px; animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+@media (prefers-reduced-motion: reduce){ .screen{animation:none;} }
+
+.statusbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px; background:rgba(0,0,0,.28);
+  border-bottom:1px solid rgba(232,171,69,.2);
+  position:sticky; top:0; z-index:20; backdrop-filter:blur(6px);
+}
+.statusbar .pill{display:flex; align-items:center; gap:5px; font-size:.82rem; color:var(--parchment-dim); font-weight:700;}
+.statusbar .pill b{color:var(--gold-hi); font-size:.9rem;}
+.statusbar .title-mini{font-family:'Shippori Mincho B1',serif; font-size:.85rem; color:var(--gold-hi); letter-spacing:.05em;}
+
+.card{
+  background:linear-gradient(155deg, var(--stone-hi), var(--stone-mid));
+  border:1px solid rgba(232,171,69,.22);
+  border-radius:var(--radius);
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.btn{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:14px 18px; border-radius:14px; font-weight:700; font-size:.98rem;
+  background:linear-gradient(160deg, var(--gold-hi), var(--gold));
+  color:#241705; box-shadow:0 6px 0 #9c6c1f, 0 10px 18px rgba(0,0,0,.35);
+  transition:transform .08s ease, box-shadow .08s ease;
+}
+.btn:active{transform:translateY(4px); box-shadow:0 2px 0 #9c6c1f, 0 4px 10px rgba(0,0,0,.3);}
+.btn.secondary{background:linear-gradient(160deg, #5a4d63, #40374a); color:var(--parchment); box-shadow:0 6px 0 #241d29, 0 10px 18px rgba(0,0,0,.3);}
+.btn.secondary:active{box-shadow:0 2px 0 #241d29;}
+.btn.danger{background:linear-gradient(160deg, #d9695c, var(--crimson)); color:#2a0e0a; box-shadow:0 6px 0 #7c261f;}
+.btn.danger:active{box-shadow:0 2px 0 #7c261f;}
+.btn:disabled{opacity:.4; filter:grayscale(.5); box-shadow:none; cursor:default;}
+.btn.block{width:100%;}
+.btn small{font-weight:500; opacity:.75; font-size:.75rem;}
+
+.tag{display:inline-flex; padding:3px 10px; border-radius:100px; font-size:.7rem; font-weight:700; letter-spacing:.03em;}
+.tag.gold{background:rgba(232,171,69,.18); color:var(--gold-hi); border:1px solid rgba(232,171,69,.4);}
+.tag.heart{background:rgba(229,99,127,.18); color:#f2a5b6; border:1px solid rgba(229,99,127,.4);}
+
+.statbar-row{display:flex; align-items:center; gap:8px; font-size:.78rem;}
+.statbar-row .lbl{width:34px; color:var(--parchment-dim); font-weight:700;}
+.statbar-track{flex:1; height:7px; border-radius:6px; background:rgba(0,0,0,.35); overflow:hidden;}
+.statbar-fill{height:100%; border-radius:6px; background:linear-gradient(90deg, var(--gold), var(--gold-hi));}
+.statbar-val{width:34px; text-align:right; font-weight:700; color:var(--parchment);}
+
+hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
+
+.center-text{text-align:center;}
+.dim{color:var(--parchment-dim);}
+.small{font-size:.82rem;}
+.tiny{font-size:.72rem;}
+
+/* title screen */
+.title-wrap{
+  min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:32px 24px; text-align:center; gap:22px; position:relative;
+}
+.arch{
+  width:220px; height:220px;
+}
+.title-h1{font-size:2rem; color:var(--gold-hi); line-height:1.25; text-shadow:0 3px 0 rgba(0,0,0,.4);}
+.title-h1 span{display:block; font-size:1.05rem; color:var(--parchment-dim); font-weight:500; margin-top:6px; letter-spacing:.08em;}
+
+/* monster card */
+.mon-card{
+  border:1px solid rgba(232,171,69,.25); border-radius:16px; padding:14px;
+  background:linear-gradient(160deg, var(--stone-hi), var(--stone-mid));
+  display:flex; flex-direction:column; gap:10px; cursor:pointer; transition:border-color .15s, transform .1s;
+}
+.mon-card.selected{border-color:var(--gold); box-shadow:0 0 0 2px var(--gold) inset, var(--shadow);}
+.mon-card:active{transform:scale(.98);}
+.mon-avatar-wrap{display:flex; justify-content:center; padding:6px;}
+
+/* training screen: parchment stat banner + rank badges */
+.skill-count-badge{
+  position:absolute; top:-10px; right:14px;
+  background:linear-gradient(160deg, #ffe27a, #f0b23d);
+  border:2px solid #fff; border-radius:100px;
+  padding:4px 10px; font-size:.66rem; font-weight:900; color:#4a2c05;
+  box-shadow:0 4px 8px rgba(0,0,0,.35);
+  display:flex; align-items:center; gap:4px; white-space:nowrap;
+}
+.stat-banner{
+  background:linear-gradient(180deg, var(--parchment), var(--parchment-dim));
+  border:2px solid rgba(120,90,40,.4);
+  border-radius:16px;
+  padding:10px 2px;
+  display:flex;
+  box-shadow:0 6px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.stat-col{
+  flex:1; min-width:0;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  border-right:1px solid rgba(120,90,40,.25);
+  padding:0 2px;
+}
+.stat-col:last-child{ border-right:none; }
+.stat-label{ font-size:.62rem; font-weight:800; color:#5c4326; white-space:nowrap; }
+.stat-value-row{ display:flex; align-items:center; gap:3px; }
+.rank-badge{
+  width:20px; height:20px; border-radius:6px; flex-shrink:0;
+  background:linear-gradient(160deg, #4a90d9, #2f5fa8);
+  color:#fff; font-weight:900; font-size:.78rem;
+  display:flex; align-items:center; justify-content:center;
+  border:1.5px solid #fff; box-shadow:0 2px 4px rgba(0,0,0,.3);
+}
+.stat-num{ font-weight:900; color:#2a1e10; font-size:.92rem; }
+
+.training-pill, .play-pill{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:14px 18px; border-radius:100px; line-height:1.35;
+  color:#fff; font-weight:900; font-size:1rem; text-align:left;
+}
+.training-pill{
+  background:linear-gradient(160deg, #f0725a, #d1452e);
+  border:3px solid #ffb89e;
+  box-shadow:0 7px 0 #8f2c1c, 0 11px 18px rgba(0,0,0,.35);
+}
+.training-pill:active{ transform:translateY(5px); box-shadow:0 2px 0 #8f2c1c; }
+.play-pill{
+  background:linear-gradient(160deg, #6fc2e0, #2f8fb8);
+  border:3px solid #b8e6f5;
+  box-shadow:0 7px 0 #1f5a73, 0 11px 18px rgba(0,0,0,.35);
+}
+.play-pill:active{ transform:translateY(5px); box-shadow:0 2px 0 #1f5a73; }
+.training-pill .icon, .play-pill .icon{ font-size:1.5rem; }
+
+.temple-row{ display:flex; gap:10px; align-items:stretch; }
+.blessing-icon-btn{
+  width:82px; flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  background:linear-gradient(160deg, #f5ead0, #e0cd9e);
+  border:3px solid #fff; border-radius:20px;
+  box-shadow:0 6px 0 #a5843f, 0 10px 16px rgba(0,0,0,.3);
+  padding:10px 4px;
+  color:#5c4326; font-weight:900; font-size:.66rem;
+}
+.blessing-icon-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #a5843f; }
+.blessing-icon-btn .emoji{ font-size:1.7rem; }
+.skill-pill-btn{
+  flex:1;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  background:linear-gradient(160deg, #ffd54f, #f5a623);
+  border:3px solid #fff5cf; border-radius:100px;
+  box-shadow:0 6px 0 #b5780f, 0 10px 16px rgba(0,0,0,.3);
+  color:#4a2c05; font-weight:900; font-size:.9rem;
+}
+.skill-pill-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #b5780f; }
+.skill-pill-btn .heart-arrow{ font-size:1.1rem; letter-spacing:1px; }
+
+/* boss requirement / rank warning */
+.stat-col.stat-bad .stat-label{ color:var(--crimson); }
+.rank-badge.rank-bad{
+  background:linear-gradient(160deg, #e5675a, var(--crimson));
+  box-shadow:0 0 0 2px rgba(192,69,59,.5), 0 2px 4px rgba(0,0,0,.3);
+}
+.stat-col.stat-bad{ box-shadow:inset 0 0 0 2px rgba(192,69,59,.55); border-radius:10px; }
+
+/* pre-battle boost/pact selector */
+.boost-opt{
+  display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+  padding:11px 14px; border-radius:14px; text-align:left;
+  background:rgba(0,0,0,.25); border:2px solid rgba(255,255,255,.14); color:var(--parchment);
+  font-weight:800; font-size:.9rem;
+}
+.boost-opt .tiny{ font-weight:600; }
+.boost-opt.selected{ border-color:var(--gold); background:rgba(232,171,69,.18); box-shadow:0 0 0 2px rgba(232,171,69,.3); }
+.boost-opt:disabled{ opacity:.4; }
+
+/* confirm modal */
+.modal-overlay{
+  position:fixed; inset:0; z-index:90; max-width:480px; margin:0 auto;
+  background:rgba(10,6,8,.68); display:flex; align-items:center; justify-content:center; padding:26px;
+}
+.modal-box{
+  width:100%; background:linear-gradient(160deg, var(--stone-hi), var(--stone-mid));
+  border:2px solid var(--gold); border-radius:18px; padding:20px; box-shadow:var(--shadow);
+}
+.modal-title{ font-weight:900; color:var(--crimson); font-size:1rem; margin-bottom:10px; }
+.modal-msg{ font-size:.85rem; line-height:1.75; color:var(--parchment); margin-bottom:16px; white-space:pre-line; }
+.modal-btns{ display:flex; gap:10px; }
+.modal-btns .btn{ flex:1; padding:11px; }
+
+.golden-opt{
+  background:linear-gradient(160deg, #fff3b0, #ffd54f) !important;
+  color:#4a2c05 !important;
+  border:2px solid #fff !important;
+  box-shadow:0 0 0 3px rgba(255,213,79,.45), 0 6px 0 #b5780f, 0 10px 16px rgba(0,0,0,.3) !important;
+  animation: goldenPulse 1.6s ease-in-out infinite;
+}
+@keyframes goldenPulse{ 0%,100%{ filter:brightness(1);} 50%{ filter:brightness(1.15);} }
+
+/* license certificate (shown after success or game over) */
+.license-card{
+  width:100%; background:linear-gradient(180deg, var(--parchment), var(--parchment-dim));
+  border:3px double #8a6a2f; border-radius:14px; padding:22px 18px;
+  box-shadow:var(--shadow); color:#2a1e10;
+}
+.license-header{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+.license-seal{ font-size:2rem; line-height:1; }
+.license-title{ font-family:'Shippori Mincho B1', serif; font-weight:800; font-size:1.15rem; color:#5c4326; letter-spacing:.1em; margin-top:2px; }
+.license-namewrap{ display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:6px; }
+.license-name-input{
+  font-family:'Shippori Mincho B1', serif; font-size:1.1rem; font-weight:800; text-align:center;
+  padding:8px 14px; border-radius:10px; border:2px solid #a5843f; background:#fffaf0; color:#2a1e10;
+  width:70%; max-width:220px;
+}
+.license-flavor{ color:#5c4326 !important; }
+.power-panel{
+  margin-top:12px; padding:12px 14px; border-radius:14px;
+  background:linear-gradient(160deg, #3a2c40, #241a2a); border:2px solid rgba(232,171,69,.5);
+  box-shadow:0 4px 10px rgba(0,0,0,.35);
+}
+.power-panel-label{ font-size:.72rem; font-weight:800; color:var(--gold-hi); text-align:center; }
+.power-panel-value{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:4px; }
+.power-rank-badge{
+  display:inline-flex; align-items:center; justify-content:center; min-width:40px; height:30px; padding:0 8px;
+  border-radius:8px; background:linear-gradient(160deg, var(--gold-hi), var(--gold)); color:#241705;
+  font-weight:900; font-size:1rem; border:2px solid #fff2cf; box-shadow:0 2px 6px rgba(0,0,0,.35);
+}
+.power-num{ font-weight:900; font-size:1.3rem; color:#fff; }
+.power-panel-comment{ text-align:center; color:var(--parchment-dim) !important; margin-top:6px; line-height:1.6; }
+
+/* bottom tab bar (room / roster / hunt / friend / transfer) */
+.tab-bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:40; max-width:480px; margin:0 auto;
+  display:flex; background:linear-gradient(180deg, rgba(28,20,32,.96), rgba(15,10,17,.98));
+  border-top:1px solid rgba(232,171,69,.28); padding:7px 4px calc(7px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -8px 22px rgba(0,0,0,.45);
+}
+.tab-btn{ flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; background:none; color:var(--parchment-dim); border-radius:10px; }
+.tab-btn .tab-icon{ font-size:1.15rem; line-height:1; }
+.tab-btn .tab-label{ font-size:.62rem; font-weight:800; }
+.tab-btn.active{ color:var(--gold-hi); background:rgba(232,171,69,.16); }
+
+/* room scene (fullscreen-ish) */
+.room-scene{ border-radius:20px; overflow:hidden; border:1px solid rgba(255,255,255,.1); box-shadow:var(--shadow); position:relative; }
+.room-bg{
+  position:relative; height:min(52vh, 440px); min-height:260px;
+  background:linear-gradient(180deg, #4a3826 0%, #4a3826 55%, #6b5138 55%, #7c5f42 100%);
+  overflow:hidden;
+}
+.room-window{
+  position:absolute; top:8%; left:50%; transform:translateX(-50%); width:44%; height:34%; max-width:200px; max-height:140px;
+  background:linear-gradient(180deg, #7fc6ef, #bfe8f2); border:6px solid #e8d9b8; border-radius:8px; overflow:hidden;
+}
+.room-window::before, .room-window::after{ content:''; position:absolute; background:#e8d9b8; }
+.room-window::before{ left:50%; top:0; bottom:0; width:5px; transform:translateX(-50%); }
+.room-window::after{ top:50%; left:0; right:0; height:5px; transform:translateY(-50%); }
+.room-cloud{ position:absolute; width:34px; height:12px; background:#fff; border-radius:20px; top:16px; left:10px; opacity:.9; }
+.room-cloud.c2{ width:24px; height:9px; top:44px; left:60px; opacity:.75; }
+.room-rug{
+  position:absolute; bottom:8%; left:50%; transform:translateX(-50%); width:70%; height:12%; max-height:40px;
+  background:radial-gradient(ellipse, #c0453b 0%, #8a2f26 80%); border-radius:50%; opacity:.75;
+}
+.room-pet{ position:absolute; bottom:6%; left:50%; transform:translateX(-50%); filter:drop-shadow(0 10px 8px rgba(0,0,0,.4)); }
+.room-pet svg{ width:min(46vw, 180px); height:min(46vw, 180px); }
+.room-caption{ padding:12px 14px; background:rgba(0,0,0,.28); font-size:.82rem; color:var(--parchment-dim); text-align:center; }
+.room-rating-icon{
+  position:absolute; top:12px; right:12px; z-index:6; width:52px; height:52px; border-radius:16px;
+  background:linear-gradient(160deg, #3a2c40, #241a2a); border:2px solid rgba(232,171,69,.6);
+  display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 4px 10px rgba(0,0,0,.4);
+}
+.room-rating-icon .badge-bang{
+  position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%;
+  background:var(--crimson); color:#fff; font-weight:900; font-size:.78rem;
+  display:flex; align-items:center; justify-content:center; border:2px solid var(--stone-deep);
+  animation:currentPulse 1.2s ease-in-out infinite;
+}
+.room-picker{ display:flex; gap:8px; overflow-x:auto; padding:4px 2px; }
+.room-picker-item{
+  flex-shrink:0; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.28); border:2px solid rgba(255,255,255,.14);
+}
+.room-picker-item svg{ width:34px; height:34px; }
+.room-picker-item.active{ border-color:var(--gold); background:rgba(232,171,69,.18); }
+
+.transfer-key-box{
+  width:100%; min-height:80px; margin-top:10px; padding:10px; border-radius:10px; resize:vertical;
+  background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.16); color:var(--parchment);
+  font-family:monospace; font-size:.72rem; line-height:1.5; word-break:break-all;
+}
+
+/* terms of service */
+.tos-box{
+  background:rgba(0,0,0,.28); border:1px solid rgba(232,171,69,.25); border-radius:14px;
+  padding:14px 16px; max-height:44vh; overflow-y:auto; font-size:.8rem; line-height:1.75; color:var(--parchment-dim);
+}
+.tos-box p{ margin-bottom:10px; }
+.tos-box b{ color:var(--gold-hi); }
+.tos-agree-row{ display:flex; align-items:center; gap:10px; padding:4px 4px; }
+.tos-agree-row input[type="checkbox"]{ width:20px; height:20px; accent-color:var(--gold); flex-shrink:0; }
+.notice-body p{ font-size:.84rem; line-height:1.75; color:var(--parchment); margin-bottom:12px; }
+.notice-body b{ color:var(--gold-hi); }
+
+/* version watermark + loading screen */
+#versionTag{
+  position:fixed; right:10px; bottom:8px; z-index:5; font-size:.62rem; font-weight:700;
+  color:rgba(232,171,69,.55); pointer-events:none; letter-spacing:.04em;
+}
+#loadingOverlay{
+  position:fixed; inset:0; z-index:200; background:var(--stone-deep);
+  display:flex; align-items:center; justify-content:center;
+}
+.loading-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; padding:24px; }
+.loading-emblem{ font-size:3rem; animation:loadingSpin 2.4s linear infinite; }
+@keyframes loadingSpin{ 0%{transform:rotate(0);} 100%{transform:rotate(360deg);} }
+.loading-title{ font-family:'Shippori Mincho B1', serif; font-weight:800; color:var(--gold-hi); font-size:1.15rem; letter-spacing:.06em; }
+.loading-bar-track{ width:220px; height:8px; border-radius:6px; background:rgba(255,255,255,.12); overflow:hidden; }
+.loading-bar-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--gold), var(--gold-hi)); transition:width .2s linear; }
+.loading-tip{ font-size:.76rem; color:var(--parchment-dim); }
+
+/* world map */
+.world-band{
+  border-radius:20px; padding:16px 14px; position:relative; overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+}
+.world-band .band-title{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;}
+.stage-track{display:flex; flex-wrap:wrap; gap:10px;}
+.stage-node{
+  width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; font-weight:900; font-size:.95rem; position:relative;
+  background:rgba(0,0,0,.28); border:2px solid rgba(255,255,255,.12); color:var(--parchment-dim);
+}
+.stage-node.cleared{background:rgba(95,174,127,.22); border-color:var(--ok); color:#bfe9cf;}
+.stage-node.current{background:linear-gradient(160deg, var(--gold-hi), var(--gold)); color:#241705; border-color:#fff2cf; box-shadow:0 0 0 4px rgba(232,171,69,.25);}
+.stage-node.locked{opacity:.35;}
+.stage-node .ico{font-size:1.1rem; line-height:1;}
+.stage-node .num{font-size:.58rem; margin-top:1px;}
+
+/* winding stage-select map */
+.world-map-scene{border-radius:20px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,.12); box-shadow:var(--shadow);}
+.map-scene-header{position:relative; z-index:5; display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:linear-gradient(180deg, rgba(0,0,0,.4), transparent);}
+.map-scroll{position:relative; height:300px; overflow-y:auto; overflow-x:hidden;}
+.map-inner{position:relative; margin:0 auto;}
+
+.biome-1 .map-scroll{background:linear-gradient(180deg, #78c6ef 0%, #bfe8f2 28%, #eaf7e0 52%, #8fc65a 72%, #5a9b3a 100%);}
+.biome-2 .map-scroll{background:linear-gradient(180deg, #f6e2ad 0%, #f0cf8c 28%, #e3b46e 60%, #c68f45 100%);}
+.biome-3 .map-scroll{background:linear-gradient(180deg, #dcecf7 0%, #eef6fb 28%, #cfe3ee 60%, #a9cbe0 100%);}
+.biome-4 .map-scroll{background:linear-gradient(180deg, #cdb89a 0%, #b39b7a 28%, #8b7355 60%, #5f4a34 100%);}
+.biome-5 .map-scroll{background:linear-gradient(180deg, #a9d3ea 0%, #cfe0ea 30%, #eef4f8 60%, #d9e8ef 100%);}
+.biome-6 .map-scroll{background:linear-gradient(180deg, #2a1210 0%, #4a1810 28%, #7a2c14 60%, #3a1210 100%);}
+.biome-7 .map-scroll{background:linear-gradient(180deg, #3a1420 0%, #5c1f22 28%, #7c2418 60%, #4a140d 100%);}
+
+.cloud{position:absolute; background:#fff; border-radius:50px; opacity:.92; box-shadow:0 6px 10px rgba(0,0,0,.06);}
+.cloud::before, .cloud::after{content:''; position:absolute; background:#fff; border-radius:50%;}
+.cloud.c1{width:60px; height:20px; top:24px; left:18px;}
+.cloud.c1::before{width:28px; height:28px; top:-13px; left:8px;}
+.cloud.c1::after{width:20px; height:20px; top:-9px; left:32px;}
+.cloud.c2{width:44px; height:16px; top:66px; right:22px;}
+.cloud.c2::before{width:20px; height:20px; top:-9px; left:6px;}
+.cloud.c3{width:52px; height:18px; top:140px; left:30px; opacity:.75;}
+.cloud.c3::before{width:22px; height:22px; top:-11px; left:8px;}
+.cloud.c4{width:40px; height:15px; top:210px; right:36px; opacity:.65;}
+.cloud.c4::before{width:18px; height:18px; top:-8px; left:6px;}
+.cloud.cf1{width:70px; height:24px; top:20px; left:16px;}
+.cloud.cf1::before{width:32px; height:32px; top:-15px; left:8px;}
+.cloud.cf2{width:56px; height:20px; top:90px; right:14px;}
+.cloud.cf2::before{width:26px; height:26px; top:-12px; left:8px;}
+.cloud.cf3{width:60px; height:22px; top:170px; left:24px;}
+.cloud.cf3::before{width:28px; height:28px; top:-13px; left:8px;}
+.cloud.cf4{width:48px; height:18px; top:240px; right:30px;}
+.cloud.cf4::before{width:22px; height:22px; top:-10px; left:6px;}
+.cloud.cf5{width:50px; height:18px; top:20px; right:80px; opacity:.7;}
+.cloud.cf5::before{width:22px; height:22px; top:-10px; left:6px;}
+
+.sun-glow{position:absolute; top:18px; right:22px; width:54px; height:54px; border-radius:50%; background:radial-gradient(circle, #fff3c0, #f5c876 70%); box-shadow:0 0 28px rgba(245,200,118,.6);}
+.dune{position:absolute; left:-10px; right:-10px; height:24px; background:rgba(200,140,70,.35); border-radius:50%;}
+.dune.d1{top:190px;}
+.dune.d2{top:250px;}
+
+.peak{position:absolute; width:0; height:0; border-left:38px solid transparent; border-right:38px solid transparent; border-bottom:56px solid rgba(255,255,255,.55);}
+.peak.p1{top:18px; left:14px;}
+.peak.p2{top:110px; right:18px; border-bottom-color:rgba(255,255,255,.4);}
+.snowfall{position:absolute; inset:0; background-image:radial-gradient(circle, #fff 1.5px, transparent 2px); background-size:34px 44px; opacity:.5;}
+
+.rockshape{position:absolute; background:rgba(0,0,0,.18); clip-path:polygon(20% 100%, 0 40%, 40% 0, 70% 30%, 100% 100%);}
+.rockshape.r1{width:110px; height:74px; top:24px; left:8px;}
+.rockshape.r2{width:94px; height:64px; top:200px; right:0px;}
+
+.lava-glow{position:absolute; border-radius:50%; background:radial-gradient(circle, rgba(255,140,60,.55), transparent 70%); filter:blur(2px); animation:emberPulse 2.4s ease-in-out infinite;}
+.lava-glow.l1{width:76px; height:76px; top:50px; left:24px;}
+.lava-glow.l2{width:56px; height:56px; top:220px; right:18px;}
+.ember{position:absolute; width:4px; height:4px; background:#ffb066; border-radius:50%; animation:emberRise 3s linear infinite;}
+.ember.e1{left:30%; top:85%;}
+.ember.e2{left:55%; top:90%; animation-delay:1s;}
+.ember.e3{left:75%; top:80%; animation-delay:2s;}
+@keyframes emberPulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+@keyframes emberRise{0%{transform:translateY(0); opacity:0;}20%{opacity:1;}100%{transform:translateY(-200px); opacity:0;}}
+
+.torch-glow{position:absolute; width:32px; height:32px; border-radius:50%; background:radial-gradient(circle, rgba(245,200,118,.8), transparent 70%); filter:blur(1px); animation:emberPulse 1.8s ease-in-out infinite;}
+.torch-glow.t1{top:36px; left:18px;}
+.torch-glow.t2{top:36px; right:18px;}
+
+.path-svg{position:absolute; left:0; top:0; z-index:1;}
+.path-node{position:absolute; transform:translate(-50%,-50%); z-index:3; display:flex; flex-direction:column; align-items:center; gap:2px;}
+.path-node-inner{
+  width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:1.05rem; background:rgba(255,255,255,.92); border:3px solid #fff; box-shadow:0 4px 8px rgba(0,0,0,.35);
+  color:#3a2c40; font-weight:900;
+}
+.path-node.cleared .path-node-inner{background:var(--ok); border-color:#d8f5e2; color:#0e3a22;}
+.path-node.current .path-node-inner{
+  background:linear-gradient(160deg, var(--gold-hi), var(--gold)); border-color:#fff2cf; color:#241705;
+  box-shadow:0 0 0 5px rgba(232,171,69,.35), 0 4px 10px rgba(0,0,0,.4); animation:currentPulse 1.4s ease-in-out infinite;
+}
+.path-node.locked .path-node-inner{background:rgba(255,255,255,.55); filter:grayscale(.4); opacity:.7;}
+.path-node-label{font-size:.62rem; font-weight:900; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); background:rgba(0,0,0,.32); padding:1px 6px; border-radius:8px;}
+@keyframes currentPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+
+/* battle */
+.battle-field{border-radius:20px; padding:16px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.08);}
+.combatant{display:flex; flex-direction:column; gap:6px;}
+.combatant.enemy{align-items:flex-end;}
+.combatant .name-row{display:flex; align-items:center; gap:8px;}
+.combatant.enemy .name-row{flex-direction:row-reverse;}
+.hpbar-track{width:100%; height:12px; border-radius:8px; background:rgba(0,0,0,.4); overflow:hidden; border:1px solid rgba(255,255,255,.1);}
+.hpbar-fill{height:100%; background:linear-gradient(90deg,#4c9a6a,#7fce93); transition:width .4s ease;}
+.hpbar-fill.low{background:linear-gradient(90deg,#c0453b,#e5837a);}
+.vs-mid{text-align:center; font-family:'Shippori Mincho B1',serif; color:var(--gold-hi); font-size:.85rem; margin:6px 0;}
+.battle-log{
+  background:rgba(0,0,0,.35); border-radius:12px; padding:10px 12px; font-size:.82rem;
+  min-height:54px; max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:4px; color:var(--parchment-dim);
+}
+.battle-log .entry:last-child{color:var(--parchment); font-weight:700;}
+.action-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+
+/* arena scene (auto-battle) */
+.arena-wrap{padding:0; overflow:hidden; position:relative;}
+.crowd-band{
+  height:64px; position:relative;
+  background-color:#4a1a1f;
+  background-image:
+    radial-gradient(circle at 6px 9px, #e8c9a0 2.6px, transparent 3.4px),
+    radial-gradient(circle at 19px 21px, #d9a877 2.6px, transparent 3.4px),
+    radial-gradient(circle at 12px 34px, #c98f8f 2.6px, transparent 3.4px),
+    radial-gradient(circle at 27px 46px, #e8c9a0 2.6px, transparent 3.4px);
+  background-size:26px 56px;
+  box-shadow:inset 0 -14px 18px -8px rgba(0,0,0,.6);
+  border-bottom:4px solid var(--gold);
+}
+.crowd-band::before{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(20,8,10,.05), rgba(20,8,10,.55));
+}
+.crowd-band .pennant{position:absolute; top:0; width:14px; height:22px; background:var(--crimson); border:1px solid var(--gold);}
+.arena-floor{
+  position:relative; height:196px;
+  background:
+    radial-gradient(ellipse 78% 62% at 50% 38%, #c15335 0%, #8a2f1e 55%, #4a160d 100%);
+}
+.arena-floor::after{
+  content:''; position:absolute; left:50%; top:44%; width:132px; height:76px; transform:translate(-50%,-50%);
+  border:3px solid rgba(232,171,69,.45); border-radius:50%;
+}
+.arena-floor::before{
+  content:''; position:absolute; left:50%; top:44%; width:74px; height:42px; transform:translate(-50%,-50%);
+  border:2px solid rgba(232,171,69,.3); border-radius:50%;
+}
+.combatant-spot{position:absolute; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:2;}
+.combatant-spot.enemy-spot{top:6px; right:14px;}
+.combatant-spot.player-spot{bottom:2px; left:14px;}
+.mon-figure{position:relative; display:inline-block;}
+.combatant-spot .mon-figure svg{filter:drop-shadow(0 8px 8px rgba(0,0,0,.45)); transition:filter .15s ease;}
+.combatant-spot.enemy-spot .mon-figure svg{width:78px; height:78px;}
+.combatant-spot.player-spot .mon-figure svg{width:98px; height:98px;}
+.mon-figure.lunge-right{animation:lungeRight .62s cubic-bezier(.34,1.4,.64,1);}
+.mon-figure.lunge-left{animation:lungeLeft .62s cubic-bezier(.34,1.4,.64,1);}
+.mon-figure.hit-shake{animation:hitShake .46s ease;}
+.mon-figure.hit-shake svg{animation:flashHit .46s ease;}
+.mon-figure.buff-glow svg{animation:buffGlow .65s ease;}
+.mon-figure.debuff-glow svg{animation:debuffGlow .65s ease;}
+@keyframes lungeRight{0%{transform:translate(0,0) rotate(0);}38%{transform:translate(20px,-14px) rotate(-8deg) scale(1.07);}100%{transform:translate(0,0) rotate(0);}}
+@keyframes lungeLeft{0%{transform:translate(0,0) rotate(0);}38%{transform:translate(-20px,14px) rotate(8deg) scale(1.07);}100%{transform:translate(0,0) rotate(0);}}
+@keyframes hitShake{0%,100%{transform:translate(0,0);}20%{transform:translate(-6px,-2px);}40%{transform:translate(6px,2px);}60%{transform:translate(-4px,0);}80%{transform:translate(4px,0);}}
+@keyframes flashHit{0%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}30%{filter:brightness(2.1) saturate(.35) drop-shadow(0 0 12px #ff5c4d);}100%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}}
+@keyframes buffGlow{0%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}40%{filter:brightness(1.7) drop-shadow(0 0 12px #f5c876);}100%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}}
+@keyframes debuffGlow{0%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}40%{filter:brightness(.7) saturate(.4) drop-shadow(0 0 12px #9b6fd1);}100%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}}
+.hp-pill{
+  display:flex; align-items:center; gap:6px; background:rgba(10,6,8,.62);
+  border:1.5px solid rgba(255,255,255,.28); border-radius:100px; padding:4px 10px 4px 9px;
+  box-shadow:0 3px 8px rgba(0,0,0,.4); white-space:nowrap;
+}
+.hp-pill .pname{font-size:.68rem; font-weight:900; color:#fff;}
+.hp-pill .bar{width:54px; height:8px; border-radius:6px; background:rgba(0,0,0,.55); overflow:hidden;}
+.hp-pill .bar-fill{height:100%; background:linear-gradient(90deg,#5fbf78,#8fe3a0); transition:width .5s ease;}
+.hp-pill .bar-fill.mid{background:linear-gradient(90deg,#dcab3d,#f0cf7a);}
+.hp-pill .bar-fill.low{background:linear-gradient(90deg,#c0453b,#e5837a);}
+.hp-pill .pnum{font-size:.66rem; font-weight:900; color:var(--gold-hi); min-width:20px; text-align:right;}
+.dmg-float{
+  position:absolute; top:22%; left:50%; margin-left:-28px; width:56px; text-align:center;
+  font-weight:900; font-size:1.05rem; color:#ffd9a0; text-shadow:0 2px 5px rgba(0,0,0,.7), 0 0 8px rgba(0,0,0,.5);
+  animation:dmgFloat .85s ease forwards; pointer-events:none; z-index:8;
+}
+.dmg-float.crit{color:#ff8a5c; font-size:1.28rem;}
+.dmg-float.miss{color:#d8c9b3; font-size:.82rem; font-style:italic;}
+.dmg-float.buff{color:#f5dfa0; font-size:.66rem; width:auto; margin-left:-44px; white-space:nowrap; text-shadow:0 2px 4px rgba(0,0,0,.7);}
+@keyframes dmgFloat{0%{opacity:0; transform:translateY(6px) scale(.7);} 18%{opacity:1; transform:translateY(-4px) scale(1.12);} 40%{transform:translateY(-10px) scale(1);} 100%{opacity:0; transform:translateY(-34px) scale(1);}}
+.battle-controls{display:flex; gap:8px; align-items:center; justify-content:space-between;}
+.auto-badge{display:flex; align-items:center; gap:6px; font-size:.75rem; color:var(--gold-hi); font-weight:800;}
+.auto-badge .dot{width:8px; height:8px; border-radius:50%; background:var(--ok); animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;} 50%{opacity:.3;}}
+
+/* skill shop */
+.skill-row{display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.08);}
+.skill-row .info{flex:1;}
+.skill-row .name{font-weight:900; font-size:.92rem; color:var(--gold-hi);}
+.skill-row .desc{font-size:.76rem; color:var(--parchment-dim); margin-top:2px;}
+
+/* toast */
+#toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+  background:rgba(20,14,22,.95); border:1px solid var(--gold); color:var(--parchment);
+  padding:10px 18px; border-radius:100px; font-size:.85rem; font-weight:700;
+  opacity:0; pointer-events:none; transition:all .25s ease; z-index:100; max-width:90%; text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+.story-box{
+  background:rgba(0,0,0,.4); border-radius:16px; padding:18px; border:1px solid rgba(232,171,69,.25);
+  line-height:1.9; font-size:.92rem; min-height:160px;
+}
+.story-box .story-line{opacity:0; animation:storyIn .6s ease forwards;}
+@keyframes storyIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.center-col{display:flex; flex-direction:column; align-items:center; gap:6px;}
+
+.icon-btn{width:38px; height:38px; border-radius:10px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15); color:var(--parchment); display:flex; align-items:center; justify-content:center; font-size:1.1rem;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+
+<script>
+/* =========================================================================
+   コロシアムモンスターズ — data
+   ========================================================================= */
+
+const WORLDS = [
+  {id:1, name:'草原', sub:'はじまりの野', color:'var(--w1)', flavor:'風がそよぐ広い野原。ここで育成の基本を覚える。'},
+  {id:2, name:'砂漠', sub:'サンドベルト', color:'var(--w2)', flavor:'照りつける太陽と乾いた砂。魔物の気配が濃くなる。'},
+  {id:3, name:'雪山', sub:'フロストピーク', color:'var(--w3)', flavor:'凍てつく風の吹きすさぶ稜線。足元に気をつけろ。'},
+  {id:4, name:'岩山', sub:'ストーンリッジ', color:'var(--w4)', flavor:'切り立った岩肌が続く難所。守りの堅い魔物が多い。'},
+  {id:5, name:'雲上', sub:'スカイテラス', color:'var(--w5)', flavor:'雲を踏みしめて進む天空の道。空気が薄く、速さがものを言う。'},
+  {id:6, name:'火山', sub:'イグニスクレーター', color:'var(--w6)', flavor:'マグマの熱がまとわりつく灼熱の地。決戦は近い。'},
+  {id:7, name:'コロシアム', sub:'ファイナルアリーナ', color:'var(--w7)', flavor:'奪われた我らが闘技場。ここを取り戻せば、すべてが終わる。'},
+];
+
+const STAGE_TYPES = {
+  1:['T','T','T','M','T','T','T','M','T','B'],
+  2:['T','M','T','T','M','M','T','T','M','B'],
+  3:['T','T','M','T','M','T','M','T','T','B'],
+  4:['T','M','T','T','M','M','T','B'],
+  5:['T','M','M','M','T','T','T','T','M','T','B'],
+  6:['T','T','T','T','T','M','M','M','T','B'],
+  7:['T','T','T','M','M','B','F'],
+};
+
+const TRAIN_MULT = {1:1, 2:2, 3:4, 4:5, 5:8, 6:10, 7:20};
+const PLAY_MULT  = {1:1, 2:1.5, 3:2, 4:2.5, 5:3, 6:3.1, 7:3.5};
+const MINI_WORLD_MULT = {1:1, 2:2, 3:3, 4:5, 5:7, 6:10, 7:15};
+
+const MINI_BASE = {
+  kamerou:   {name:'カメロウ',   hp:28, atk:10, def:22, eva:1,  spd:5,  shape:'shell',  colorA:'#7fa955', colorB:'#4f7136'},
+  mizushi:   {name:'ミズシー',   hp:19, atk:14, def:8,  eva:5,  spd:10, shape:'drop',   colorA:'#5aa9c9', colorB:'#2f6f8c'},
+  pawasuu:   {name:'パワスー',   hp:30, atk:18, def:2,  eva:0,  spd:22, shape:'spike',  colorA:'#d1552f', colorB:'#8c3010'},
+  faikuu:    {name:'ファイクー', hp:22, atk:11, def:10, eva:11, spd:8,  shape:'round',  colorA:'#dc9c46', colorB:'#a56a1c'},
+  sutaaburo: {name:'スターブロ', hp:12, atk:11, def:9,  eva:10, spd:12, shape:'star',   colorA:'#c9a13f', colorB:'#8f6c1e'},
+};
+
+const BOSSES = {
+  1:{name:'メガサルーン',     hp:28,  atk:15,  def:18,  eva:0,  spd:12,  colorA:'#7fa955', colorB:'#3f5a26', shape:'kaiju', skills:[]},
+  2:{name:'メガ砂アラーシ',   hp:51,  atk:35,  def:20,  eva:0,  spd:22,  colorA:'#dc9c46', colorB:'#8a5a1c', shape:'kaiju', skills:[
+        {key:'sunaarashiin', name:'スナアラシーン', desc:'相手の守備力を少し下げる', type:'debuff_enemy', stat:'def', mult:.85, cd:3}]},
+  3:{name:'ギガスノーン',     hp:79,  atk:58,  def:39,  eva:12, spd:58,  colorA:'#9dc3da', colorB:'#4c7f9c', shape:'kaiju', skills:[]},
+  4:{name:'ギガイワパワーズ', hp:129, atk:72,  def:82,  eva:0,  spd:66,  colorA:'#a17a58', colorB:'#5f4429', shape:'kaiju', skills:[
+        {key:'gigakatame', name:'ギガカタメ', desc:'自分の守備力を上げる', type:'buff_self', stat:'def', mult:1.5, cd:99}]},
+  5:{name:'ギガフワーリン',   hp:227, atk:28,  def:101, eva:8,  spd:101, colorA:'#c9d9e6', colorB:'#6f8fa8', shape:'kaiju', skills:[
+        {key:'gigafuwafu', name:'ギガフワフー', desc:'相手のステータスを大きく下げる', type:'debuff_enemy_random', mult:.6, cd:4},
+        {key:'gigafuwaru', name:'ギガフワル', desc:'巨大な雲魔法で攻撃する（魔力2倍）', type:'magic_dmg', mult:2, cd:4}]},
+  6:{name:'カザンナイト',     hp:381, atk:160, def:105, eva:0,  spd:109, colorA:'#d1552f', colorB:'#7c2c12', shape:'kaiju', skills:[
+        {key:'nightmare', name:'ナイトメア', desc:'小ダメージ＋相手の素早さを下げる', type:'dmg_debuff', dmgMult:.8, stat:'spd', mult:.8, cd:3}]},
+  7:{name:'ブラックハンマー', hp:400, atk:250, def:180, eva:0,  spd:12,  colorA:'#4a3f52', colorB:'#1c1620', shape:'kaiju', skills:[
+        {key:'daifuriban', name:'ダイフリバーン', desc:'巨大ハンマーで大ダメージを与える', type:'big_dmg', mult:1.7, cd:3}]},
+  8:{name:'ダイキュア',       hp:650, atk:400, def:250, eva:0,  spd:200, colorA:'#c0453b', colorB:'#3a0f0b', shape:'kaiju', skills:[
+        {key:'akumu', name:'アクムノジカン', desc:'漆黒のビーム。相手の全ステータスを大幅に下げる', type:'debuff_all_big', mult:.6, cd:5}]},
+};
+
+const SKILLS = {
+  pawasutairu:  {name:'パワースタイル', desc:'自分の攻撃力を1.5倍にする', cost:10, kind:'buff', stat:'atk', mult:1.5},
+  disufensuraa: {name:'ディフェンスラー', desc:'自分の守備力を2倍にする', cost:10, kind:'buff', stat:'def', mult:2},
+  pawamukin:    {name:'パワームキン', desc:'攻撃力を2倍、代わりに守備力が半分になる', cost:10, kind:'buff', stat:'atk', mult:2, sideStat:'def', sideMult:.5},
+  hayamukin:    {name:'ハヤムキン', desc:'自分の素早さを上昇させる', cost:10, kind:'buff', stat:'spd', mult:1.5},
+  agenrun:      {name:'アゲンルン', desc:'自分の攻撃の命中率を上昇させる', cost:10, kind:'buff', stat:'acc', mult:1},
+  funyapawa:    {name:'フニャパワー', desc:'相手の守備力を下げる', cost:10, kind:'debuff', stat:'def', mult:.7},
+  bureruu:      {name:'ブレルー', desc:'相手の攻撃命中率を下げる', cost:10, kind:'debuff', stat:'acc', mult:1},
+  osokuu:       {name:'オソクー', desc:'相手の素早さを下げる', cost:10, kind:'debuff', stat:'spd', mult:.7},
+  shiopawa:     {name:'シオパワー', desc:'相手の攻撃力を下げる', cost:10, kind:'debuff', stat:'atk', mult:.7},
+  dorilinsupin: {name:'ドリルインスピン', desc:'相手のHPが低いとき、大ダメージを与える', cost:15, kind:'cond_dmg', cond:'low', mult:2.4},
+  daiozame:     {name:'ダイオーザメー', desc:'相手のHPが高いとき、大ダメージを与える', cost:15, kind:'cond_dmg', cond:'high', mult:2.4},
+  tsukitodome:  {name:'ツキトドメ', desc:'ダメージを与え、相手の攻撃力を大きく下げる', cost:15, kind:'dmg_debuff', stat:'atk', mult:.5, dmgMult:1},
+  piyopiyo:     {name:'ピヨピヨ', desc:'相手を混乱状態にする。時々自分を攻撃してしまう', cost:20, kind:'status', status:'confuse'},
+  dokudoku:     {name:'ドクドク', desc:'相手を毒状態にする。数ターン継続でダメージを受ける', cost:20, kind:'status', status:'poison'},
+  nightmareball:{name:'ナイトメーア', desc:'ヤミグマ専用。闇の魔法玉で攻撃し、相手の素早さを極限まで下げる', cost:20, kind:'dmg_debuff', stat:'spd', mult:.25, dmgMult:.7},
+  ainoopushon: {name:'愛のオプション', desc:'アイたん専用。愛のルーレットを回し、様々な弱体効果のいずれかを相手に与える', cost:30, kind:'roulette'},
+};
+
+/* アイたん専用スキル「愛のオプション」のルーレット候補
+   ※このゲームには魔法攻撃力/魔法防御力という独立ステータスがないため、
+     「魔法攻撃力低下」「魔法防御力低下」は攻撃力・守備力の低下として再現している */
+const AI_ROULETTE = [
+  {label:'攻撃力低下',     apply:(e)=>{ e.atk = Math.max(1, Math.round(e.atk*0.6)); },  msg:(n)=>`${n}の攻撃力が下がった！`},
+  {label:'守備力低下',     apply:(e)=>{ e.def = Math.max(1, Math.round(e.def*0.6)); },  msg:(n)=>`${n}の守備力が下がった！`},
+  {label:'すばやさ低下',   apply:(e)=>{ e.spd = Math.max(1, Math.round(e.spd*0.6)); },  msg:(n)=>`${n}のすばやさが下がった！`},
+  {label:'ドクドク',       apply:(e)=>{ e.status.poison = (e.status.poison||0)+3; },    msg:(n)=>`${n}は毒状態になった！`},
+  {label:'ぴよぴよ',       apply:(e)=>{ e.status.confuse = (e.status.confuse||0)+3; },  msg:(n)=>`${n}は混乱状態になった！`},
+  {label:'魔法攻撃力低下', apply:(e)=>{ e.atk = Math.max(1, Math.round(e.atk*0.7)); },  msg:(n)=>`${n}の魔法攻撃力が下がった！`},
+  {label:'魔法防御力低下', apply:(e)=>{ e.def = Math.max(1, Math.round(e.def*0.7)); },  msg:(n)=>`${n}の魔法防御力が下がった！`},
+  {label:'大きな愛パワー', apply:(e)=>{ e.hp = Math.round(e.hp/2); },                   msg:(n)=>`大きな愛パワーが炸裂！ ${n}のHPが半分になった！`},
+];
+
+/* ---------------- 合計戦闘力評価 ---------------- */
+const POWER_RANKS = [
+  {key:'E',    min:0,    comment:'育成ゲーム初心者。これから頑張っていこう。'},
+  {key:'D',    min:100,  comment:'育成的にはまだ足りない。これからもステータス重視で頑張っていこう。'},
+  {key:'C',    min:150,  comment:'あともう少しで育成ゲームの基本というところまで上達できる。'},
+  {key:'B',    min:300,  comment:'ここらへんで中級者レベル。もっと上げれば上級者へ行けるぞ！'},
+  {key:'A',    min:451,  comment:'なかなかいい。ちょうどいい所レベル。だがまだ上級者レベルではない。もっと積み重ねよう'},
+  {key:'S',    min:680,  comment:'完全なる上級者レベル。だいぶうまい。育成がよくわかっている。ここからは趣味だと思う。'},
+  {key:'Z',    min:820,  comment:'だいぶすごい。このゲームについての攻略がよくわかっている。もっと上へ行こうと思えばいけるがもう十分だろう。'},
+  {key:'ZZ',   min:900,  comment:'育成ゲームにおいてほぼ頂点。このゲームで無双できるほどの育成力がある。'},
+  {key:'ZZZ',  min:1000, comment:'かなりすごい。ここまで来れるものは育成ゲームにおいて神レベル。'},
+  {key:'MEGA', min:1201, comment:'言葉も出ない。めちゃくちゃすごい逸材。'},
+  {key:'GIGA', min:1400, comment:'どうやらこのゲームでは成り立っては行けなさそうな人だ。もっと他の育成ゲームをおすすめします。'},
+  {key:'KING', min:1500, comment:'どうやってここまで…？？'},
+];
+function computePower(stats){ return Math.round((stats.hp+stats.atk+stats.def+stats.spd+stats.eva)/2); }
+function getPowerRank(power){
+  let cur = POWER_RANKS[0];
+  for(const r of POWER_RANKS){ if(power >= r.min) cur = r; else break; }
+  return cur;
+}
+
+/* ---------------- ステータスランク評価 ---------------- */
+const RANKS = [
+  {key:'F',   min:0,   comment:'とりあえず育成に手を尽くそう'},
+  {key:'E',   min:28,  comment:'まだ最低限レベル。上には上がいるのでそれを目指そう'},
+  {key:'D',   min:53,  comment:'大丈夫！その調子、もっと上を目指そう！'},
+  {key:'C',   min:93,  comment:'ここらへんで中級レベルのステータス。まだまだ上がれるよ！！'},
+  {key:'B',   min:160, comment:'いいね！平均ほどのステータス'},
+  {key:'A',   min:206, comment:'これでやっと普通かなって感じ！！'},
+  {key:'S',   min:300, comment:'育成ゲーム上級者の予感。とても強い。'},
+  {key:'Z',   min:351, comment:'ここまで来れる人をあまりみたことがありません。'},
+  {key:'ZZ',  min:501, comment:'育成ゲームの王です。崇めましょう。'},
+  {key:'ZZZ', min:600, comment:'育成ゲームの域を超えていける人。神です。'},
+];
+const RANK_ORDER = RANKS.map(r=>r.key);
+function getStatRank(value){
+  let cur = RANKS[0];
+  for(const r of RANKS){ if(value >= r.min) cur = r; else break; }
+  return cur.key;
+}
+function rankAtLeast(rank, target){ return RANK_ORDER.indexOf(rank) >= RANK_ORDER.indexOf(target); }
+
+/* ボス推奨ランク（HP・攻撃・守備・素早さの4つで判定。回避は対象外） */
+const BOSS_REQUIREMENTS = {
+  1:{type:'all',  rank:'E'},
+  2:{type:'half', rank:'D'},
+  3:{type:'all',  rank:'D'},
+  4:{type:'half', rank:'C'},
+  5:{type:'half', rank:'B'},
+  6:{type:'all',  rank:'B'},
+  7:{type:'all',  rank:'A'},
+  8:{type:'all',  rank:'S'},
+};
+const RANK_CHECK_STATS = ['hp','atk','def','spd'];
+function checkBossRequirement(stage){
+  const key = stage.type==='F' ? 8 : stage.world;
+  const req = BOSS_REQUIREMENTS[key];
+  if(!req) return {req:null, ok:true, failed:[]};
+  const bs = blessedStats(S.stats);
+  const info = RANK_CHECK_STATS.map(k=>({k, rank:getStatRank(bs[k]), meets:rankAtLeast(getStatRank(bs[k]), req.rank)}));
+  const okCount = info.filter(i=>i.meets).length;
+  const ok = req.type==='all' ? okCount===info.length : okCount>=2;
+  return {req, ok, failed:info.filter(i=>!i.meets).map(i=>i.k), info};
+}
+function reqLabel(req){
+  if(!req) return '';
+  return req.type==='all' ? `すべて${req.rank}以上` : `半分（2つ）が${req.rank}以上`;
+}
+
+const STARTERS = {
+  ponkichi: {
+    id:'ponkichi', name:'ポンキチ', title:'すばしっこい戦士タイプ',
+    base:{hp:14, atk:14, def:8, spd:22, eva:18},
+    desc:'とにかく素早く、相手より先に動ける。攻撃を避けるのも得意。',
+    skillPool:['funyapawa','pawasutairu','bureruu','daiozame','dorilinsupin'],
+    colorA:'#e8ab45', colorB:'#a5701c', shape:'fox',
+  },
+  gufagon: {
+    id:'gufagon', name:'グファゴン', title:'パワー全振りタイプ',
+    base:{hp:28, atk:26, def:4, spd:3, eva:1},
+    desc:'HPと攻撃力がずば抜けて高い。その分、素早さと回避は低い。',
+    skillPool:['pawasutairu','agenrun','funyapawa','hayamukin','pawamukin'],
+    colorA:'#c0453b', colorB:'#6e2018', shape:'dragon',
+  },
+  gadian: {
+    id:'gadian', name:'ガーディアン', title:'バランス守備タイプ',
+    base:{hp:14, atk:10, def:14, spd:19, eva:9},
+    desc:'守備力に優れ、粘り強く戦える。全体的にバランスが良い。',
+    skillPool:['disufensuraa','funyapawa','pawasutairu','bureruu','pawamukin'],
+    colorA:'#5aa9c9', colorB:'#2c5e75', shape:'turtle',
+  },
+  yamiguma: {
+    id:'yamiguma', name:'ヤミグマ', title:'あやしい魔導タイプ',
+    base:{hp:20, atk:16, def:12, spd:10, eva:8},
+    desc:'毒や弱体化で相手をじわじわ追い詰める、搦め手が得意なくま。専用スキルの威力は伊達じゃない。',
+    skillPool:['dokudoku','disufensuraa','osokuu','shiopawa','pawasutairu','nightmareball'],
+    colorA:'#6a4fa0', colorB:'#332056', shape:'witchbear',
+  },
+  henhei: {
+    id:'henhei', name:'ヘン兵', title:'トリッキーな速攻タイプ',
+    base:{hp:12, atk:12, def:9, spd:22, eva:11},
+    desc:'素早さが高く、多彩な妨害スキルを使いこなすいたずら好きの戦士。',
+    skillPool:['tsukitodome','piyopiyo','shiopawa','pawasutairu','disufensuraa','funyapawa','dorilinsupin'],
+    colorA:'#c9a13f', colorB:'#7c5a1e', shape:'jester',
+  },
+  aitan: {
+    id:'aitan', name:'アイたん', title:'愛にあふれる妖精っ子',
+    base:{hp:15, atk:14, def:12, spd:10, eva:15},
+    desc:'愛の妖精が作り上げた、愛に染められている女の子。すでに環境入りするほどステータスが安定している。',
+    skillPool:['pawasutairu','disufensuraa','bureruu','funyapawa','shiopawa','ainoopushon'],
+    colorA:'#e56b96', colorB:'#a83f68', shape:'fairy',
+  },
+};
+
+/* stage list, flattened */
+const STAGES = [];
+WORLDS.forEach(w=>{
+  STAGE_TYPES[w.id].forEach((t,i)=>{
+    STAGES.push({world:w.id, num:i+1, type:t, id:`${w.id}-${i+1}`});
+  });
+});
+
+const BLESSINGS = [
+  {key:'hp', label:'体力', icon:'♥'},
+  {key:'atk', label:'攻撃力', icon:'⚔'},
+  {key:'def', label:'防御力', icon:'🛡'},
+  {key:'spd', label:'素早さ', icon:'⚡'},
+  {key:'eva', label:'回避', icon:'✦'},
+];
+
+/* ---------------- 育成完了後：ハント ---------------- */
+const HUNT_MOBS = {
+  aokusaa:       {name:'アオクサー',     hp:25, atk:12, def:8,  spd:10, eva:5,  colorA:'#7fa955', colorB:'#3f5a26', shape:'kaiju'},
+  tatenooo:      {name:'タテノオー',     hp:29, atk:14, def:19, spd:15, eva:12, colorA:'#a17a58', colorB:'#5f4429', shape:'kaiju'},
+  batsunozangee: {name:'バツノザンゲー', hp:9,  atk:22, def:8,  spd:21, eva:10, colorA:'#c0453b', colorB:'#6e2018', shape:'kaiju'},
+  buruuzu:       {name:'ブルーズ',       hp:29, atk:20, def:11, spd:11, eva:5,  colorA:'#5aa9c9', colorB:'#2c5e75', shape:'kaiju'},
+  // 原文に素早さの記載がなかったため、他個体と釣り合う値(9)を仮に設定
+  kizameeru:     {name:'キザメール',     hp:31, atk:11, def:2,  spd:9,  eva:8,  colorA:'#dc9c46', colorB:'#8a5a1c', shape:'kaiju'},
+};
+const HUNT_RARITIES = [
+  {key:'normal',  label:'ノーマル（ボス）',   mult:10, weight:50, color:'#9a9a9a'},
+  {key:'purple',  label:'パープル（メガ）',   mult:15, weight:30, color:'#a97fe0'},
+  {key:'gold',    label:'ゴールド（ギガ）',   mult:20, weight:19, color:'#f0c14b'},
+  {key:'rainbow', label:'レインボー（キング）', mult:30, weight:1,  color:'#ff7fb0'},
+];
+function rollHuntRarity(){
+  const roll = Math.random()*100;
+  let cum = 0;
+  for(const r of HUNT_RARITIES){ cum += r.weight; if(roll < cum) return r; }
+  return HUNT_RARITIES[0];
+}
+/* 初回無料、以降は100ずつ増え、1000で頭打ち */
+function huntCost(attemptNum){
+  if(attemptNum <= 1) return 0;
+  return Math.min(1000, (attemptNum-1) * 100);
+}
+
+/* =========================================================================
+   state & persistence
+   ========================================================================= */
+
+const SAVE_KEY = 'colosseum_save_v1';
+const ACCOUNT_KEY = 'colosseum_account_v1';
+const TOS_KEY = 'colosseum_tos_agree_v1';
+const VERSION = 'v0.1.3';
+const RATING_COOLDOWN_MS = 60*60*1000; // 1時間（試作段階のため、HTMLを開いてからの経過時間ベース）
+
+function freshState(){
+  return {
+    started:false,
+    storySeen:false,
+    monsterId:null,
+    stats:null,        // {hp,atk,def,spd,eva}
+    hearts:0,
+    ownedSkills:[],     // skill keys purchased
+    equippedSkills:[],  // up to 3 skill keys
+    stageIndex:0,       // index into STAGES
+    checkpoint:0,       // index of last cleared training stage (or 0)
+    cleared:[],         // stage ids cleared
+    blessings:{hp:0,atk:0,def:0,spd:0,eva:0},
+    ending:false,
+    lives:5,
+    retryTickets:5,
+    devilPactsUsed:0,
+    angelPactsUsed:0,
+    gameOver:false,
+    monsterName:null,
+    licenseSeen:false,
+    viewMode:'game',    // 'game' | 'room' | 'roster' | 'hunt' | 'friend' | 'transfer' | 'rating'
+    runActive:false,    // true while a training run is in progress and resumable
+    lateGameRetryUsedFor:null, // checkpoint index for which the one late-game retry-on-loss has been used (worlds 6-7)
+  };
+}
+function freshAccount(){
+  return {
+    medals:0,     // 全モンスターで共有。ボス討伐後のみ獲得できる
+    roster:[],    // 育成を終えたモンスターたち [{id, speciesId, name, stats, outcome, dateISO}]
+    huntAttempts:0,
+    huntWins:0,
+    ratingLastPlayedAt:null, // 最後にレーティングマッチを行った時刻（ms）
+    ratingWins:0,
+    ratingLosses:0,
+  };
+}
+
+let S = freshState();
+let account = freshAccount();
+let battleState = null; // ephemeral, not saved
+let tosAgreed = false;  // 利用規約への同意（アプリ全体でずっと保持）
+
+async function loadTos(){
+  try{
+    const res = await window.storage.get(TOS_KEY, false);
+    tosAgreed = !!(res && res.value==='1');
+  }catch(e){ tosAgreed = false; }
+}
+async function agreeTos(){
+  tosAgreed = true;
+  try{ await window.storage.set(TOS_KEY, '1', false); }catch(e){}
+}
+
+async function loadGame(){
+  try{
+    const res = await window.storage.get(SAVE_KEY, false);
+    if(res && res.value){
+      const loaded = JSON.parse(res.value);
+      S = Object.assign(freshState(), loaded);
+    }
+  }catch(e){ /* no save yet */ }
+  try{
+    const res2 = await window.storage.get(ACCOUNT_KEY, false);
+    if(res2 && res2.value){
+      const loaded2 = JSON.parse(res2.value);
+      account = Object.assign(freshAccount(), loaded2);
+    }
+  }catch(e){ /* no account yet */ }
+  await loadTos();
+}
+async function saveGame(){
+  try{ await window.storage.set(SAVE_KEY, JSON.stringify(S), false); }
+  catch(e){ console.error('save failed', e); }
+}
+async function saveAccount(){
+  try{ await window.storage.set(ACCOUNT_KEY, JSON.stringify(account), false); }
+  catch(e){ console.error('account save failed', e); }
+}
+/* 完全リセット（タイトル画面の「データをリセットする」専用）：口座（メダル・図鑑）ごと消す */
+async function resetGame(){
+  S = freshState();
+  account = freshAccount();
+  try{ await window.storage.delete(SAVE_KEY, false); }catch(e){}
+  try{ await window.storage.delete(ACCOUNT_KEY, false); }catch(e){}
+  render();
+}
+/* 新しい挑戦（自室から）：今回の育成データだけ消し、メダルや図鑑は引き継ぐ */
+function startNewRun(){
+  S = freshState();
+  S.started = true;
+  saveGame();
+  render();
+}
+
+/* =========================================================================
+   helpers
+   ========================================================================= */
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function showConfirmModal({title, message, yesLabel='はい', noLabel='いいえ', onYes, onNo, dangerous}){
+  const overlay = el(`<div class="modal-overlay">
+    <div class="modal-box">
+      ${title?`<div class="modal-title">${title}</div>`:''}
+      <div class="modal-msg">${message}</div>
+      <div class="modal-btns">
+        <button class="btn secondary" id="modalNo">${noLabel}</button>
+        <button class="btn ${dangerous?'danger':''}" id="modalYes">${yesLabel}</button>
+      </div>
+    </div>
+  </div>`);
+  overlay.querySelector('#modalNo').onclick = ()=>{ overlay.remove(); onNo && onNo(); };
+  overlay.querySelector('#modalYes').onclick = ()=>{ overlay.remove(); onYes && onYes(); };
+  document.getElementById('app').appendChild(overlay);
+}
+function showNoticeModal(){
+  sfxNotice();
+  const overlay = el(`<div class="modal-overlay">
+    <div class="modal-box" style="max-height:80vh; overflow-y:auto;">
+      <div class="modal-title" style="color:var(--gold-hi);">📢 お知らせ（${VERSION}）</div>
+      <div class="notice-body">
+        <p><b>⚔️ バトル演出の大幅リニューアル</b><br>バトル画面がフルスクリーンになり、モンスターごとに専用の攻撃モーション（風・炎・剣・魔力の腕・槍・愛のパンチ）が加わりました。ダメージの表示やHPバーもより見やすく一新しています。</p>
+        <p><b>🏠 自室のフルスクリーン化</b><br>自室の表示がより大きく、雰囲気たっぷりに。下部のタブや各種ボタンはそのまま使えます。</p>
+        <p><b>🥊 レーティングマッチを追加</b><br>自分が育てたモンスターと戦闘力が近いBotたちと、Bot4体＋自分1体、合計5体が入り乱れるバトルで力試しができるようになりました。</p>
+      </div>
+      <button class="btn block" id="noticeClose" style="margin-top:14px;">閉じる</button>
+    </div>
+  </div>`);
+  overlay.querySelector('#noticeClose').onclick = ()=> overlay.remove();
+  document.getElementById('app').appendChild(overlay);
+}
+function showTitleTransferOverlay(){
+  const overlay = el(`<div class="modal-overlay" style="align-items:flex-start; padding-top:36px;">
+    <div class="modal-box" style="max-height:82vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div class="modal-title" style="margin:0;">🔑 データ引き継ぎ</div>
+        <button class="icon-btn" id="closeTransferOverlay">✕</button>
+      </div>
+      <div id="transferContent"></div>
+    </div>
+  </div>`);
+  overlay.querySelector('#transferContent').appendChild(renderTransferTab());
+  overlay.querySelector('#closeTransferOverlay').onclick = ()=> overlay.remove();
+  document.getElementById('app').appendChild(overlay);
+}
+
+/* ---------------- sound effects (WebAudio, no external files) ---------------- */
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx = null; }
+  }
+  return audioCtx;
+}
+function playTone(freqs, dur, type, gainAmt){
+  const ctx = getAudioCtx();
+  if(!ctx) return;
+  if(ctx.state==='suspended'){ ctx.resume().catch(()=>{}); }
+  const t0 = ctx.currentTime;
+  freqs.forEach((f,i)=>{
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type; osc.frequency.value = f;
+    osc.connect(g); g.connect(ctx.destination);
+    const start = t0 + i*dur;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(gainAmt, start+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, start+dur);
+    osc.start(start); osc.stop(start+dur+0.03);
+  });
+}
+function sfxTrain(){ playTone([523.25,659.25,783.99], 0.09, 'triangle', 0.16); }
+function sfxNotice(){ playTone([784,988], 0.1, 'sine', 0.13); }
+function sfxWin(){ playTone([659.25,783.99,987.77,1318.51], 0.11, 'triangle', 0.16); }
+
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstElementChild; }
+function starter(){ return STARTERS[S.monsterId]; }
+function currentStage(){ return STAGES[S.stageIndex]; }
+function worldOf(n){ return WORLDS.find(w=>w.id===n); }
+function stageTypeLabel(t){ return t==='T'?'育成':t==='M'?'ミニ討伐':t==='B'?'ボス討伐':'ラストボス'; }
+function stageTypeIcon(t){ return t==='T'?'🌿':t==='M'?'⚔️':t==='B'?'💀':'👑'; }
+
+function blessedStats(base){
+  const out = {};
+  for(const k of ['hp','atk','def','spd','eva']){
+    const lvl = S.blessings[k]||0;
+    out[k] = Math.round(base[k] * (1 + lvl*0.03));
+  }
+  return out;
+}
+
+/* =========================================================================
+   monster avatar (procedural svg so every creature has a distinct silhouette)
+   ========================================================================= */
+
+function monsterSVG(desc, size=104){
+  const {colorA, colorB, shape} = desc;
+  const eye = `<circle cx="${'{cx}'}" cy="${'{cy}'}" r="4.2" fill="#1c1116"/><circle cx="${'{cx2}'}" cy="${'{cy2}'}" r="1.4" fill="#fff"/>`;
+  function eyes(cx1,cy1,cx2,cy2,r){
+    return `<circle cx="${cx1}" cy="${cy1}" r="${r}" fill="#1c1116"/><circle cx="${cx1+1.2}" cy="${cy1-1.2}" r="${r*.32}" fill="#fff"/>
+            <circle cx="${cx2}" cy="${cy2}" r="${r}" fill="#1c1116"/><circle cx="${cx2+1.2}" cy="${cy2-1.2}" r="${r*.32}" fill="#fff"/>`;
+  }
+  let body = '';
+  switch(shape){
+    case 'fox':
+      body = `
+        <ellipse cx="52" cy="62" rx="30" ry="26" fill="url(#g)"/>
+        <path d="M26 40 L18 14 L38 32 Z" fill="${colorA}"/>
+        <path d="M78 40 L86 14 L66 32 Z" fill="${colorA}"/>
+        <path d="M30 42 L24 20 L38 34 Z" fill="${colorB}"/>
+        <path d="M74 42 L80 20 L66 34 Z" fill="${colorB}"/>
+        <ellipse cx="52" cy="70" rx="14" ry="10" fill="${colorB}" opacity=".55"/>
+        ${eyes(42,56,62,56,4)}
+        <path d="M46 68 Q52 74 58 68" stroke="#1c1116" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      `; break;
+    case 'dragon':
+      body = `
+        <ellipse cx="52" cy="66" rx="34" ry="28" fill="url(#g)"/>
+        <path d="M20 46 Q10 30 22 18 Q28 32 30 44 Z" fill="${colorA}"/>
+        <path d="M84 46 Q94 30 82 18 Q76 32 74 44 Z" fill="${colorA}"/>
+        <path d="M40 30 L52 12 L64 30 Z" fill="${colorB}"/>
+        ${eyes(40,58,64,58,4.6)}
+        <path d="M44 74 Q52 80 60 74" stroke="#1c1116" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <circle cx="30" cy="70" r="5" fill="${colorB}" opacity=".5"/><circle cx="74" cy="70" r="5" fill="${colorB}" opacity=".5"/>
+      `; break;
+    case 'turtle':
+      body = `
+        <ellipse cx="52" cy="70" rx="32" ry="20" fill="${colorB}"/>
+        <path d="M24 70 Q52 38 80 70 Q52 86 24 70 Z" fill="url(#g)"/>
+        <circle cx="52" cy="58" r="8" fill="${colorB}" opacity=".5"/>
+        <circle cx="36" cy="66" r="6" fill="${colorB}" opacity=".4"/>
+        <circle cx="68" cy="66" r="6" fill="${colorB}" opacity=".4"/>
+        <ellipse cx="52" cy="34" rx="16" ry="14" fill="${colorA}"/>
+        ${eyes(46,32,58,32,3.4)}
+      `; break;
+    case 'shell':
+      body = `
+        <path d="M18 66 Q52 26 86 66 Q52 92 18 66 Z" fill="url(#g)"/>
+        <path d="M30 64 Q52 44 74 64" stroke="${colorB}" stroke-width="4" fill="none" opacity=".5"/>
+        <path d="M38 74 Q52 60 66 74" stroke="${colorB}" stroke-width="4" fill="none" opacity=".5"/>
+        <ellipse cx="52" cy="78" rx="14" ry="9" fill="${colorA}"/>
+        ${eyes(46,78,58,78,3)}
+      `; break;
+    case 'drop':
+      body = `
+        <path d="M52 16 Q80 56 80 74 A28 28 0 1 1 24 74 Q24 56 52 16 Z" fill="url(#g)"/>
+        <ellipse cx="40" cy="60" rx="8" ry="12" fill="#fff" opacity=".18"/>
+        ${eyes(42,72,62,72,3.6)}
+        <path d="M46 84 Q52 89 58 84" stroke="#1c1116" stroke-width="2" fill="none" stroke-linecap="round"/>
+      `; break;
+    case 'spike':
+      body = `
+        <ellipse cx="52" cy="64" rx="28" ry="26" fill="url(#g)"/>
+        <path d="M52 12 L58 34 L46 34 Z" fill="${colorA}"/>
+        <path d="M26 24 L38 40 L24 42 Z" fill="${colorA}"/>
+        <path d="M78 24 L66 40 L80 42 Z" fill="${colorA}"/>
+        ${eyes(43,60,61,60,4)}
+        <path d="M44 76 L60 76" stroke="#1c1116" stroke-width="2.4" stroke-linecap="round"/>
+      `; break;
+    case 'round':
+      body = `
+        <circle cx="52" cy="64" r="30" fill="url(#g)"/>
+        <path d="M30 44 Q52 28 74 44" stroke="${colorA}" stroke-width="6" fill="none" stroke-linecap="round"/>
+        ${eyes(42,62,62,62,4.2)}
+        <ellipse cx="52" cy="76" rx="8" ry="5" fill="${colorB}" opacity=".5"/>
+      `; break;
+    case 'star':
+      body = `
+        <path d="M52 18 L61 46 L90 46 L66 62 L75 90 L52 72 L29 90 L38 62 L14 46 L43 46 Z" fill="url(#g)"/>
+        ${eyes(44,54,60,54,3.6)}
+      `; break;
+    case 'witchbear':
+      body = `
+        <ellipse cx="52" cy="70" rx="28" ry="24" fill="url(#g)"/>
+        <circle cx="30" cy="48" r="9" fill="${colorB}"/>
+        <circle cx="74" cy="48" r="9" fill="${colorB}"/>
+        <path d="M30 20 L58 46 L20 50 Z" fill="${colorA}"/>
+        <circle cx="30" cy="20" r="4" fill="${colorB}"/>
+        <path d="M40 30 L38 22 M46 26 L45 18 M52 24 L52 16" stroke="${colorA}" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+        ${eyes(43,66,61,66,4)}
+        <path d="M46 80 Q52 84 58 80" stroke="#1c1116" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      `; break;
+    case 'jester':
+      body = `
+        <ellipse cx="52" cy="68" rx="27" ry="25" fill="url(#g)"/>
+        <path d="M30 40 Q22 16 34 10 Q36 26 42 36 Z" fill="${colorA}"/>
+        <path d="M74 40 Q82 16 70 10 Q68 26 62 36 Z" fill="${colorA}"/>
+        <circle cx="34" cy="11" r="4" fill="${colorB}"/>
+        <circle cx="70" cy="11" r="4" fill="${colorB}"/>
+        ${eyes(43,62,61,62,4)}
+        <path d="M42 78 L46 84 L50 78 L54 84 L58 78 L62 84" stroke="${colorB}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      `; break;
+    case 'fairy':
+      body = `
+        <path d="M18 48 Q4 36 12 56 Q20 66 30 58 Z" fill="${colorA}" opacity=".85"/>
+        <path d="M86 48 Q100 36 92 56 Q84 66 74 58 Z" fill="${colorA}" opacity=".85"/>
+        <ellipse cx="52" cy="66" rx="26" ry="24" fill="url(#g)"/>
+        <path d="M52 30 C48 24 38 26 38 34 C38 42 52 52 52 52 C52 52 66 42 66 34 C66 26 56 24 52 30 Z" fill="${colorB}"/>
+        ${eyes(43,64,61,64,4)}
+        <path d="M46 78 Q52 82 58 78" stroke="#1c1116" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="24" cy="40" r="2.2" fill="#fff" opacity=".8"/>
+        <circle cx="82" cy="46" r="2.6" fill="#fff" opacity=".8"/>
+        <circle cx="16" cy="60" r="1.6" fill="#fff" opacity=".6"/>
+      `; break;
+    case 'kaiju':
+    default:
+      body = `
+        <ellipse cx="52" cy="68" rx="36" ry="28" fill="url(#g)"/>
+        <path d="M20 50 L10 20 L34 38 Z" fill="${colorA}"/>
+        <path d="M84 50 L94 20 L70 38 Z" fill="${colorA}"/>
+        <path d="M40 26 L52 4 L64 26 Z" fill="${colorA}"/>
+        ${eyes(38,60,66,60,5.2)}
+        <path d="M38 80 Q52 90 66 80" stroke="#1c1116" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M30 88 L26 100 M40 90 L38 102 M64 90 L66 102 M74 88 L78 100" stroke="${colorB}" stroke-width="4" stroke-linecap="round"/>
+      `; break;
+  }
+  const gid = 'g'+Math.random().toString(36).slice(2,9);
+  body = body.replaceAll('url(#g)', `url(#${gid})`);
+  return `
+  <svg width="${size}" height="${size}" viewBox="0 0 104 104" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${colorA}"/>
+        <stop offset="100%" stop-color="${colorB}"/>
+      </linearGradient>
+    </defs>
+    ${body}
+  </svg>`;
+}
+
+/* =========================================================================
+   render root
+   ========================================================================= */
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  if(!tosAgreed){ app.appendChild(renderTosGate()); return; }
+  if(!S.started){ app.appendChild(renderTitle()); return; }
+  if(!S.monsterId){ app.appendChild(renderMonsterSelect()); return; }
+  if(!S.storySeen){ app.appendChild(renderStory()); return; }
+
+  if((S.gameOver || S.ending) && !S.licenseSeen){
+    app.appendChild(renderLicenseCard(S.gameOver?'fail':'success'));
+    return;
+  }
+
+  if(battleState){ app.appendChild(renderBattle()); return; }
+
+  if(S.viewMode && S.viewMode!=='game'){
+    app.appendChild(renderRoomShell(S.viewMode));
+    return;
+  }
+
+  app.appendChild(renderStatusBar());
+  const stage = currentStage();
+  if(stage.type==='T') app.appendChild(renderTraining());
+  else app.appendChild(renderQuestGate());
+}
+
+function renderStatusBar(){
+  const showRoomBtn = account.roster.length>=1 && !battleState;
+  const bar = el(`
+    <div class="statusbar">
+      <div class="title-mini">コロシアムモンスターズ</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        ${showRoomBtn?'<button class="icon-btn" id="roomMenuBtn">🏠</button>':''}
+        <div class="pill">🤍<b>${S.lives}</b></div>
+        <div class="pill">💗<b>${S.hearts}</b></div>
+        <div class="pill">🪙<b>${account.medals}</b></div>
+      </div>
+    </div>
+  `);
+  if(showRoomBtn){
+    bar.querySelector('#roomMenuBtn').onclick = ()=>{ S.viewMode='room'; saveGame(); render(); };
+  }
+  return bar;
+}
+
+/* ---------------- title ---------------- */
+/* ---------------- 利用規約 ---------------- */
+function renderTosGate(){
+  const wrap = el(`
+    <div class="screen" style="padding-top:36px; gap:16px;">
+      <h2 style="color:var(--gold-hi); font-size:1.2rem; text-align:center;">利用規約</h2>
+      <div class="tos-box">
+        <p><b>第1条（本作品について）</b><br>本作品「コロシアムモンスターズ」は、個人制作による非公式のファンメイド作品です。実在の企業・団体・商品とは一切関係ありません。</p>
+        <p><b>第2条（データの保存）</b><br>育成状況・メダル・図鑑などのデータは、お使いのブラウザ上にのみ保存されます。ブラウザやサイトの更新によりデータが失われる場合がありますので、「引き継ぎキー」機能で定期的にバックアップすることをおすすめします。</p>
+        <p><b>第3条（フェアプレーのお願い）</b><br>本作品は一人でも多くの方に気持ちよく遊んでいただくため、不正なデータ改ざんやツールの使用などはご遠慮ください。</p>
+        <p><b>第4条（金銭のやり取りについて）</b><br>本作品内に、現金・仮想通貨等を用いた課金要素は一切ありません。</p>
+        <p><b>第5条（禁止事項）</b><br>本作品を用いた誹謗中傷、著作権侵害、その他公序良俗に反する行為はお控えください。</p>
+        <p><b>第6条（免責事項）</b><br>本作品の利用によって生じたいかなる損害についても、制作者は責任を負いかねます。あらかじめご了承ください。</p>
+        <p><b>第7条（規約の変更）</b><br>本規約は、事前の予告なく変更される場合があります。</p>
+      </div>
+      <label class="tos-agree-row">
+        <input type="checkbox" id="tosCheck">
+        <span class="small">上記の利用規約を読み、同意します</span>
+      </label>
+      <button class="btn block" id="tosAgreeBtn" disabled>同意してはじめる</button>
+    </div>
+  `);
+  const check = wrap.querySelector('#tosCheck');
+  const btn = wrap.querySelector('#tosAgreeBtn');
+  check.onchange = ()=>{ btn.disabled = !check.checked; };
+  btn.onclick = async ()=>{
+    if(!check.checked) return;
+    await agreeTos();
+    render();
+  };
+  return wrap;
+}
+
+function renderTitle(){
+  const wrap = el(`
+    <div class="title-wrap">
+      <svg class="arch" viewBox="0 0 220 220">
+        <defs>
+          <linearGradient id="archg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5c876"/><stop offset="100%" stop-color="#c0453b"/>
+          </linearGradient>
+        </defs>
+        <path d="M30 200 L30 110 A80 80 0 0 1 190 110 L190 200" fill="none" stroke="url(#archg)" stroke-width="10" stroke-linecap="round"/>
+        <path d="M46 200 L46 116 A64 64 0 0 1 174 116 L174 200" fill="none" stroke="#e8ab45" stroke-width="4" opacity=".5"/>
+        <circle cx="110" cy="118" r="30" fill="#3a2c40" stroke="#e8ab45" stroke-width="3"/>
+        <circle cx="98" cy="112" r="5" fill="#f5c876"/><circle cx="122" cy="112" r="5" fill="#f5c876"/>
+        <path d="M96 128 Q110 138 124 128" stroke="#f5c876" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <rect x="18" y="196" width="184" height="10" rx="4" fill="#e8ab45"/>
+      </svg>
+      <h1 class="title-h1">コロシアムモンスターズ<span>COLOSSEUM MONSTERS</span></h1>
+      <p class="dim small" style="max-width:320px; line-height:1.7;">
+        襲撃され、奪われたコロシアム。自分だけのモンスターを育て、7つの地を越え、奪われた闘技場を取り戻せ。
+      </p>
+      <button class="btn block" id="startBtn" style="max-width:280px;">冒険をはじめる</button>
+      <button class="btn secondary block" id="continueBtn" style="max-width:280px; display:${S.monsterId?'flex':'none'};">つづきから</button>
+      <div style="display:flex; gap:8px; max-width:280px; width:100%;">
+        <button class="btn secondary" id="noticeBtn" style="flex:1;"><span class="tiny">📢 お知らせ</span></button>
+        <button class="btn secondary" id="titleTransferBtn" style="flex:1;"><span class="tiny">🔑 引き継ぎ</span></button>
+      </div>
+      <button class="btn secondary block" id="resetBtn" style="max-width:280px; opacity:.6;"><span class="tiny">データをリセットする</span></button>
+    </div>
+  `);
+  wrap.querySelector('#startBtn').onclick = ()=>{
+    if(S.monsterId){ if(!confirm('新しく始めますか？現在のセーブは消えます。')) return; S=freshState(); }
+    S.started = true; saveGame(); render();
+  };
+  wrap.querySelector('#continueBtn').onclick = ()=>{ S.started=true; saveGame(); render(); };
+  wrap.querySelector('#noticeBtn').onclick = ()=> showNoticeModal();
+  wrap.querySelector('#titleTransferBtn').onclick = ()=> showTitleTransferOverlay();
+  wrap.querySelector('#resetBtn').onclick = async ()=>{
+    if(confirm('本当にすべてのデータをリセットしますか？')){ await resetGame(); }
+  };
+  return wrap;
+}
+
+/* ---------------- monster select ---------------- */
+function renderMonsterSelect(){
+  const wrap = el(`<div class="screen">
+    <h2 style="color:var(--gold-hi); font-size:1.3rem;">相棒を選ぼう</h2>
+    <p class="dim small">最初に選んだモンスターを、コロシアムを取り戻すまで育てていく。</p>
+    <div id="monList" style="display:flex; flex-direction:column; gap:12px;"></div>
+    <button class="btn block" id="confirmMon" disabled>この子に決める</button>
+  </div>`);
+  const list = wrap.querySelector('#monList');
+  let picked = null;
+  Object.values(STARTERS).forEach(m=>{
+    const card = el(`
+      <div class="mon-card" data-id="${m.id}">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div class="mon-avatar-wrap" style="padding:0;">${monsterSVG(m,74)}</div>
+          <div style="flex:1;">
+            <div style="font-weight:900; color:var(--gold-hi); font-size:1.05rem;">${m.name}</div>
+            <div class="tiny dim">${m.title}</div>
+          </div>
+        </div>
+        <p class="small dim" style="line-height:1.6;">${m.desc}</p>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          ${['hp','atk','def','spd','eva'].map(k=>{
+            const labels={hp:'HP',atk:'攻撃',def:'防御',spd:'速さ',eva:'回避'};
+            const pct = clamp(m.base[k]/30*100,6,100);
+            return `<div class="statbar-row"><div class="lbl">${labels[k]}</div><div class="statbar-track"><div class="statbar-fill" style="width:${pct}%"></div></div><div class="statbar-val">${m.base[k]}</div></div>`;
+          }).join('')}
+        </div>
+      </div>
+    `);
+    card.onclick = ()=>{
+      list.querySelectorAll('.mon-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      picked = m.id;
+      wrap.querySelector('#confirmMon').disabled = false;
+    };
+    list.appendChild(card);
+  });
+  wrap.querySelector('#confirmMon').onclick = ()=>{
+    S.monsterId = picked;
+    S.stats = Object.assign({}, STARTERS[picked].base);
+    S.runActive = true;
+    toast(`${STARTERS[picked].name}が仲間になった！`);
+    saveGame(); render();
+  };
+  return wrap;
+}
+
+/* ---------------- story intro ---------------- */
+const STORY_LINES = [
+  'あるコロシアムに出場できる――そう告げられたのは、数日前のことだった。',
+  'しかしその夜、コロシアムは何者かに襲撃され、無残にも壊滅。何者かに乗っ取られてしまった。',
+  '広場に残されたのは、傷ついた一匹の卵と、燃え尽きた闘技場の残骸だけ。',
+  `あなたは${'{name}'}と出会い、誓う。`,
+  '「このモンスターを育て上げ、必ずコロシアムを取り戻す」と。',
+  '7つの地を越えた先――奪われた闘技場で、真の戦いが待っている。',
+];
+function renderStory(){
+  const name = starter().name;
+  const wrap = el(`<div class="screen" style="padding-top:40px;">
+    <h2 class="center-text" style="color:var(--gold-hi);">プロローグ</h2>
+    <div class="story-box" id="storyBox"></div>
+    <button class="btn block" id="storyNext" style="display:none;">コロシアムへ向かう</button>
+  </div>`);
+  const box = wrap.querySelector('#storyBox');
+  STORY_LINES.forEach((line,i)=>{
+    const p = document.createElement('p');
+    p.className='story-line';
+    p.style.animationDelay = (i*0.55)+'s';
+    p.textContent = line.replace('{name}', name);
+    box.appendChild(p);
+  });
+  setTimeout(()=>{ wrap.querySelector('#storyNext').style.display='flex'; }, STORY_LINES.length*550+300);
+  wrap.querySelector('#storyNext').onclick = ()=>{ S.storySeen=true; saveGame(); render(); };
+  return wrap;
+}
+
+/* ---------------- world map header used on training/quest screens ---------------- */
+function buildWorldPath(n){
+  const width = 300, spacingY = 60, topPad = 42, amp = 78, cx = width/2;
+  const pts = [];
+  for(let i=0;i<n;i++){
+    const x = cx + Math.sin(i*1.15)*amp;
+    const y = topPad + i*spacingY;
+    pts.push({x,y});
+  }
+  const height = topPad + (n-1)*spacingY + 54;
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for(let i=1;i<pts.length;i++){
+    const prev = pts[i-1], cur = pts[i];
+    const midY = (prev.y+cur.y)/2;
+    d += ` C ${prev.x} ${midY}, ${cur.x} ${midY}, ${cur.x} ${cur.y}`;
+  }
+  return {pts, d, width, height};
+}
+
+function biomeDecorHTML(worldId){
+  switch(worldId){
+    case 1: return `<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div>`;
+    case 2: return `<div class="sun-glow"></div><div class="dune d1"></div><div class="dune d2"></div>`;
+    case 3: return `<div class="peak p1"></div><div class="peak p2"></div><div class="snowfall"></div>`;
+    case 4: return `<div class="rockshape r1"></div><div class="rockshape r2"></div>`;
+    case 5: return `<div class="cloud cf1"></div><div class="cloud cf2"></div><div class="cloud cf3"></div><div class="cloud cf4"></div><div class="cloud cf5"></div>`;
+    case 6: return `<div class="lava-glow l1"></div><div class="lava-glow l2"></div><div class="ember e1"></div><div class="ember e2"></div><div class="ember e3"></div>`;
+    case 7: return `<div class="torch-glow t1"></div><div class="torch-glow t2"></div>`;
+    default: return '';
+  }
+}
+
+function mapProgressWidget(){
+  const stage = currentStage();
+  const w = worldOf(stage.world);
+  const types = STAGE_TYPES[stage.world];
+  const {pts, d, width, height} = buildWorldPath(types.length);
+
+  let nodesHTML = '';
+  types.forEach((t,i)=>{
+    const num = i+1;
+    const sid = `${stage.world}-${num}`;
+    const cleared = S.cleared.includes(sid);
+    const isCurrent = sid===stage.id;
+    const locked = !cleared && !isCurrent;
+    const {x,y} = pts[i];
+    nodesHTML += `
+      <div class="path-node ${cleared&&!isCurrent?'cleared':''} ${isCurrent?'current':''} ${locked?'locked':''}" style="left:${x}px; top:${y}px;">
+        <div class="path-node-inner">${cleared&&!isCurrent?'✓':stageTypeIcon(t)}</div>
+        <div class="path-node-label">${num}</div>
+      </div>`;
+  });
+
+  const scene = el(`<div class="world-map-scene biome-${stage.world}">
+    <div class="map-scene-header">
+      <div>
+        <div class="tiny" style="opacity:.85; color:#fff;">現在地</div>
+        <div style="font-weight:900; color:#fff; font-size:1.05rem; text-shadow:0 2px 4px rgba(0,0,0,.4);">${w.name}　<span style="font-size:.72rem; font-weight:500; opacity:.85;">${w.sub}</span></div>
+      </div>
+      <div class="tag gold">${stage.id}</div>
+    </div>
+    <div class="map-scroll" id="mapScroll">
+      ${biomeDecorHTML(stage.world)}
+      <div class="map-inner" style="width:${width}px; height:${height}px;">
+        <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" class="path-svg">
+          <path d="${d}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 15"/>
+        </svg>
+        ${nodesHTML}
+      </div>
+    </div>
+  </div>`);
+
+  setTimeout(()=>{
+    const curEl = scene.querySelector('.path-node.current');
+    if(curEl && curEl.scrollIntoView) curEl.scrollIntoView({block:'center', behavior:'auto'});
+  }, 0);
+
+  return scene;
+}
+
+/* ---------------- training screen ---------------- */
+function renderStatCol(key, label, icon){
+  const val = blessedStats(S.stats)[key];
+  const rank = getStatRank(val);
+  return `<div class="stat-col">
+    <div class="stat-label">${icon} ${label}</div>
+    <div class="stat-value-row"><span class="rank-badge">${rank}</span><span class="stat-num">${val}</span></div>
+  </div>`;
+}
+
+function renderTraining(){
+  const stage = currentStage();
+  const w = worldOf(stage.world);
+  const wrap = el(`<div class="screen"></div>`);
+  wrap.appendChild(mapProgressWidget());
+
+  const statCard = el(`<div class="card" style="position:relative; padding-top:22px;">
+    <div class="skill-count-badge">🐾 所持スキル <b>${S.ownedSkills.length}</b></div>
+    <p class="small dim" style="line-height:1.7; margin-bottom:8px;">${w.flavor}</p>
+    <div style="display:flex; justify-content:center; margin-bottom:6px;">${monsterSVG(starter(),78)}</div>
+    <div class="stat-banner">
+      ${renderStatCol('hp','HP','❤')}
+      ${renderStatCol('atk','攻撃','⚔')}
+      ${renderStatCol('def','守備','🛡')}
+      ${renderStatCol('spd','素早さ','👟')}
+      ${renderStatCol('eva','回避','✦')}
+    </div>
+  </div>`);
+  wrap.appendChild(statCard);
+
+  const actionCard = el(`<div class="card" id="actionCard" style="display:flex; flex-direction:column; gap:10px;">
+    <button class="training-pill" id="trainBtn"><span class="icon">💪</span><span>トレーニング<br><span class="tiny" style="font-weight:600; opacity:.9;">3択から選んで上昇</span></span></button>
+    <button class="play-pill" id="playBtn"><span class="icon">🎾</span><span>遊ぶ<br><span class="tiny" style="font-weight:600; opacity:.9;">絆のハート獲得</span></span></button>
+  </div>`);
+  wrap.appendChild(actionCard);
+
+  const templeRow = el(`<div class="temple-row">
+    <button class="blessing-icon-btn" id="blessingBtn"><span class="emoji">🙏</span>加護強化</button>
+    <button class="skill-pill-btn" id="skillBtn"><span class="heart-arrow">💗➜⭐</span>スキル習得</button>
+  </div>`);
+  wrap.appendChild(templeRow);
+
+  actionCard.querySelector('#trainBtn').onclick = ()=>{ sfxTrain(); showTrainOptions(wrap, actionCard, stage); };
+  actionCard.querySelector('#playBtn').onclick = ()=> doPlay(wrap, actionCard, stage);
+  templeRow.querySelector('#blessingBtn').onclick = ()=> openTemple();
+  templeRow.querySelector('#skillBtn').onclick = ()=> openTemple();
+
+  return wrap;
+}
+
+/* トレーニングは3択（ランダム生成）から1つを選ぶ方式。まれに「ゴールデン」化した
+   メニューが混ざり、選ぶと通常の2倍ステータスが上がる。 */
+function genTrainOptions(){
+  const keys = ['hp','atk','def','spd','eva'];
+  const opts = [];
+  for(let i=0;i<3;i++){
+    const pool = [...keys];
+    const main = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
+    const sub = pool.splice(Math.floor(Math.random()*pool.length), 1)[0];
+    const golden = Math.random() < 0.15;
+    opts.push({main, sub, golden});
+  }
+  return opts;
+}
+
+/* アイたん専用「愛のサポート」：HP・攻撃力・防御力のトレーニング増加量を1.25倍（四捨五入） */
+function applyLovePassive(statKey, amount){
+  if(S.monsterId==='aitan' && ['hp','atk','def'].includes(statKey)){
+    return Math.round(amount*1.25);
+  }
+  return amount;
+}
+
+function showTrainOptions(wrap, actionCard, stage){
+  const options = genTrainOptions();
+  actionCard.innerHTML = `<p class="small dim" style="margin-bottom:10px;">どのトレーニングをする？（1つ選ぼう）</p>`;
+  const optWrap = el(`<div style="display:flex; flex-direction:column; gap:8px;"></div>`);
+  options.forEach(opt=>{
+    const mult = TRAIN_MULT[stage.world] * (opt.golden ? 2 : 1);
+    const mainGain = applyLovePassive(opt.main, 2*mult);
+    const subGain = applyLovePassive(opt.sub, 1*mult);
+    const btn = el(`<button class="btn ${opt.golden?'':'secondary'} ${opt.golden?'golden-opt':''}" style="text-align:left; justify-content:flex-start;">
+      ${opt.golden?'✨ ゴールデン ✨<br>':''}${statKeyLabel(opt.main)}+${mainGain} ／ ${statKeyLabel(opt.sub)}+${subGain}
+    </button>`);
+    btn.onclick = ()=>{
+      S.stats[opt.main] += mainGain;
+      S.stats[opt.sub] += subGain;
+      let extraMsg = '';
+      /* ポンキチ専用「すばこさのいやしさ」：トレーニングのたび素早さ+1 */
+      if(S.monsterId==='ponkichi'){
+        S.stats.spd += 1;
+        extraMsg += '（ポンキチの特性で素早さ+1！）';
+      }
+      /* ヘン兵専用「コッカノトッコウタイチョウ」：12%の確率でランダムなステータスに+3 */
+      if(S.monsterId==='henhei' && Math.random()<0.12){
+        const bonusKey = pick(['hp','atk','def','spd','eva']);
+        S.stats[bonusKey] += 3;
+        extraMsg += `（ヘン兵の特性で${statKeyLabel(bonusKey)}+3！）`;
+      }
+      const msg = `${statKeyLabel(opt.main)}+${mainGain}、${statKeyLabel(opt.sub)}+${subGain}`;
+      toast(`${msg}！`);
+      resolveStageAfterAction(wrap, actionCard, stage, `${starter().name}は特訓した！ ${opt.golden?'✨ゴールデンメニュー✨ ':''}${msg}！${extraMsg}`, true, [opt.main, opt.sub]);
+    };
+    optWrap.appendChild(btn);
+  });
+  actionCard.appendChild(optWrap);
+}
+
+function doPlay(wrap, actionCard, stage){
+  const base = rnd(1,5);
+  const gain = Math.round(base * PLAY_MULT[stage.world]);
+  S.hearts += gain;
+  resolveStageAfterAction(wrap, actionCard, stage, `${starter().name}と遊んで、絆のハートを ${gain} 個もらった！`, false);
+}
+
+function resolveStageAfterAction(wrap, actionCard, stage, msg, offerSnack, statKeys){
+  markCleared(stage);
+  actionCard.innerHTML = `<p class="small" style="line-height:1.7;">${msg}</p>`;
+  const btnRow = el(`<div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;"></div>`);
+  if(offerSnack && statKeys && statKeys.length){
+    const cost = 5 + stage.world*2;
+    const label = statKeys.map(statKeyLabel).join('・');
+    const snackBtn = el(`<button class="btn secondary block">🍬 おやつタイム（🪙${cost}で${label}にさらに+1ずつ）</button>`);
+    snackBtn.onclick = ()=>{
+      if(account.medals < cost){ toast('メダルが足りない…'); return; }
+      account.medals -= cost;
+      statKeys.forEach(k=> S.stats[k] += 1);
+      toast(`${label}がさらに+1！`);
+      saveAccount(); saveGame();
+      snackBtn.remove();
+    };
+    if(account.medals >= cost) btnRow.appendChild(snackBtn);
+  }
+  const nextBtn = el(`<button class="btn block">次へ進む</button>`);
+  nextBtn.onclick = ()=>{ advanceStage(); render(); };
+  btnRow.appendChild(nextBtn);
+  actionCard.appendChild(btnRow);
+  saveGame();
+}
+function statKeyLabel(k){ return {hp:'HP',atk:'攻撃力',def:'防御力',spd:'素早さ',eva:'回避'}[k]||k; }
+
+function markCleared(stage){
+  if(!S.cleared.includes(stage.id)) S.cleared.push(stage.id);
+  if(stage.type==='T') S.checkpoint = S.stageIndex;
+}
+function advanceStage(){
+  if(S.stageIndex < STAGES.length-1){ S.stageIndex++; }
+  saveGame();
+}
+
+/* ---------------- quest gate (mini/boss/finalboss) ---------------- */
+function renderQuestGate(){
+  const stage = currentStage();
+  const w = worldOf(stage.world);
+  const isFinal = stage.type==='F';
+  const isBoss = stage.type==='B' || isFinal;
+  const enemy = buildEnemy(stage);
+  const wrap = el(`<div class="screen"></div>`);
+  wrap.appendChild(mapProgressWidget());
+
+  wrap.appendChild(el(`
+    <div class="card">
+      <div class="tag ${isBoss?'heart':'gold'}" style="margin-bottom:8px;">${isFinal?'ラストキングボス討伐クエスト':isBoss?'ボス討伐クエスト':'ミニ討伐クエスト'}</div>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div class="mon-avatar-wrap" style="padding:0;">${monsterSVG(enemy,84)}</div>
+        <div style="flex:1;">
+          <div style="font-weight:900; font-size:1.1rem; color:var(--gold-hi);">${enemy.name}</div>
+          <div class="tiny dim" style="margin-top:4px;">HP ${enemy.hp} / 攻撃 ${enemy.atk} / 防御 ${enemy.def} / 速さ ${enemy.spd}</div>
+        </div>
+      </div>
+      <hr class="rule" style="margin:12px 0;">
+      <p class="small dim" style="line-height:1.7;">${isFinal?'ここを乗り越えれば、コロシアムを取り戻せる。総力を尽くせ。':isBoss?'この地の主が立ちはだかる。油断は禁物だ。':'討伐クエストの依頼を受け、魔物と戦おう。'}</p>
+    </div>
+  `));
+
+  const check = isBoss ? checkBossRequirement(stage) : null;
+  const failedSet = check ? new Set(check.failed) : new Set();
+  const bstats = blessedStats(S.stats);
+  const iconOf = {hp:'❤',atk:'⚔',def:'🛡',spd:'👟',eva:'✦'};
+  const statCard = el(`<div class="card">
+    ${isBoss ? `<div class="small" style="margin-bottom:10px; line-height:1.6;"><b style="color:var(--gold-hi);">推奨ランク：</b>${reqLabel(check.req)}<br><span class="tiny dim">※推奨ランクはあくまで目安です。満たしていなくても勝てる可能性はあります。（回避は対象外）</span></div>` : ''}
+    <div class="stat-banner">
+      ${['hp','atk','def','spd','eva'].map(k=>{
+        const rank = getStatRank(bstats[k]);
+        const bad = failedSet.has(k);
+        return `<div class="stat-col ${bad?'stat-bad':''}">
+          <div class="stat-label">${iconOf[k]} ${statKeyLabel(k)}</div>
+          <div class="stat-value-row"><span class="rank-badge ${bad?'rank-bad':''}">${rank}</span><span class="stat-num">${bstats[k]}</span></div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`);
+  wrap.appendChild(statCard);
+
+  const boostCost = isFinal ? 60 : (isBoss ? 25*stage.world : 10*stage.world);
+  const devilLeft = 30 - S.devilPactsUsed;
+  const angelLeft = 10 - S.angelPactsUsed;
+  let selected = 'none';
+  const boostCard = el(`<div class="card">
+    <p class="small dim" style="margin-bottom:10px;">戦いの前に、力を借りることができる（1つだけ選べる）</p>
+    <div style="display:flex; flex-direction:column; gap:8px;" id="boostOptions">
+      <button class="boost-opt" data-v="boost">🔥 気合いブースト<span class="tiny dim">🪙${boostCost}・攻撃力+15%（この戦闘のみ）</span></button>
+      <button class="boost-opt" data-v="devil" ${devilLeft<=0?'disabled':''}>😈 悪魔像と契約<span class="tiny dim">🪙10・勝利時のステータス上昇が大幅UP／敵も強化される（残り${Math.max(0,devilLeft)}回）</span></button>
+      <button class="boost-opt" data-v="angel" ${angelLeft<=0?'disabled':''}>😇 天使像と契約<span class="tiny dim">🪙10・自分のステータスが上昇（この戦闘のみ・残り${Math.max(0,angelLeft)}回）</span></button>
+    </div>
+  </div>`);
+  wrap.appendChild(boostCard);
+  const optButtons = Array.from(boostCard.querySelectorAll('.boost-opt'));
+  optButtons.forEach(b=>{
+    if(b.disabled) return;
+    b.onclick = ()=>{
+      const v = b.dataset.v;
+      selected = (selected===v) ? 'none' : v;
+      optButtons.forEach(x=> x.classList.toggle('selected', x.dataset.v===selected));
+    };
+  });
+
+  const goBtn = el(`<button class="btn block" id="goBtn" style="padding:16px;">${isBoss?'討伐に挑む':'挑む'}</button>`);
+  wrap.appendChild(goBtn);
+
+  if(isBoss){
+    const isLateGame = (stage.world===6 || stage.world===7);
+    if(isLateGame){
+      wrap.appendChild(el(`<div class="card"><p class="tiny dim" style="line-height:1.7; text-align:center;">🎫 この地（火山・コロシアム）では、リトライチケットは使用できない。</p></div>`));
+    }else{
+      const ticketBtn = el(`<button class="btn secondary block" id="ticketBtn" ${S.retryTickets<=0?'disabled':''}>🎫 リトライチケットで育成へ戻る（残り${S.retryTickets}枚）</button>`);
+      wrap.appendChild(ticketBtn);
+      if(S.retryTickets>0){
+        ticketBtn.onclick = ()=>{
+          showConfirmModal({
+            title:'リトライチケットを使用しますか？',
+            message:`育成ステージまで戻り、もう一度ステータスを鍛え直せます。ライフは減りません。\nチケットは残り${S.retryTickets}枚です。`,
+            onYes:()=>{
+              S.retryTickets -= 1;
+              S.stageIndex = S.checkpoint;
+              saveGame();
+              toast('育成ステージへ戻った');
+              render();
+            },
+          });
+        };
+      }
+    }
+  }
+
+  wrap.appendChild(el(`<button class="btn secondary block" id="templeBtn2">🏛 神殿で加護強化・スキル確認</button>`));
+  wrap.querySelector('#templeBtn2').onclick = ()=> openTemple();
+
+  function costFor(v){ return v==='boost' ? boostCost : (v==='devil'||v==='angel') ? 10 : 0; }
+
+  goBtn.onclick = ()=>{
+    const cost = costFor(selected);
+    if(cost>0 && account.medals<cost){ toast('メダルが足りない…'); return; }
+    const proceed = ()=>{
+      if(cost>0){ account.medals -= cost; saveAccount(); }
+      if(selected==='devil') S.devilPactsUsed++;
+      if(selected==='angel') S.angelPactsUsed++;
+      saveGame();
+      startBattle(stage, enemy, selected);
+    };
+    if(isBoss && check && !check.ok){
+      showConfirmModal({
+        title:'⚠️ 注意 ⚠️',
+        message:'あなたは推奨ランクに満たしていないステータスが一つ以上（赤色で囲われているところです）あります。それでもバトルに進みますか？\n\n（ヒント：リトライチケットを使用すればステータス向上が可能です。）\n\n※この推奨ランクは目安です。推奨していなくても勝てる可能性はあります。',
+        yesLabel:'はい', noLabel:'いいえ', dangerous:true,
+        onYes: proceed,
+      });
+    }else{
+      proceed();
+    }
+  };
+
+  return wrap;
+}
+
+function buildEnemy(stage){
+  if(stage.type==='M'){
+    const base = pick(Object.values(MINI_BASE));
+    const mult = MINI_WORLD_MULT[stage.world];
+    return {
+      name:base.name, colorA:base.colorA, colorB:base.colorB, shape:base.shape,
+      hp:Math.round(base.hp*mult), maxHp:Math.round(base.hp*mult),
+      atk:Math.round(base.atk*mult), def:Math.round(base.def*mult),
+      eva:base.eva, spd:Math.round(base.spd*mult), skills:[],
+    };
+  }
+  const bossKey = stage.type==='F' ? 8 : stage.world;
+  const b = BOSSES[bossKey];
+  return {
+    name:b.name, colorA:b.colorA, colorB:b.colorB, shape:b.shape,
+    hp:b.hp, maxHp:b.hp, atk:b.atk, def:b.def, eva:b.eva, spd:b.spd,
+    skills: b.skills.map(s=>({...s, cdLeft:0, usedOnce:false})),
+  };
+}
+
+/* =========================================================================
+   temple (blessings + skill shrine)
+   ========================================================================= */
+function openTemple(){
+  const overlay = el(`<div class="screen" style="position:fixed; inset:0; overflow-y:auto; background:var(--stone-deep); z-index:50; max-width:480px; margin:0 auto;"></div>`);
+  overlay.appendChild(el(`<div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="color:var(--gold-hi); font-size:1.2rem;">🏛 神殿</h2>
+    <button class="icon-btn" id="closeTemple">✕</button>
+  </div>`));
+  overlay.appendChild(el(`<div class="pill" style="align-self:flex-start;">🪙<b>${account.medals}</b>　💗<b>${S.hearts}</b></div>`));
+
+  // blessings
+  const bCard = el(`<div class="card">
+    <h3 style="color:var(--gold-hi); font-size:.98rem; margin-bottom:6px;">加護強化</h3>
+    <p class="tiny dim" style="margin-bottom:10px;">メダルを捧げてステータスの成長率を永続的に高める。</p>
+    <div id="blessList" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </div>`);
+  const bList = bCard.querySelector('#blessList');
+  BLESSINGS.forEach(b=>{
+    const lvl = S.blessings[b.key]||0;
+    const cost = 15*(lvl+1);
+    const row = el(`<div class="skill-row">
+      <div class="info">
+        <div class="name">${b.icon} ${b.label} <span class="tiny dim">Lv.${lvl}</span></div>
+        <div class="desc">成長+${lvl*3}% → 次は🪙${cost}</div>
+      </div>
+      <button class="btn secondary" style="padding:8px 12px;" ${account.medals<cost?'disabled':''}>強化</button>
+    </div>`);
+    row.querySelector('button').onclick = ()=>{
+      if(account.medals<cost) return;
+      account.medals -= cost; S.blessings[b.key] = lvl+1;
+      saveAccount(); saveGame(); overlay.remove(); openTemple();
+    };
+    bList.appendChild(row);
+  });
+  overlay.appendChild(bCard);
+
+  // skill shrine
+  const st = starter();
+  const sCard = el(`<div class="card">
+    <h3 style="color:var(--gold-hi); font-size:.98rem; margin-bottom:6px;">絆の祭壇</h3>
+    <p class="tiny dim" style="margin-bottom:10px;">絆のハートとスキルを交換できる。最大3つまで装備可能。</p>
+    <div id="skillList" style="display:flex; flex-direction:column; gap:8px;"></div>
+  </div>`);
+  const sList = sCard.querySelector('#skillList');
+  st.skillPool.forEach(key=>{
+    const sk = SKILLS[key];
+    const owned = S.ownedSkills.includes(key);
+    const equipped = S.equippedSkills.includes(key);
+    const row = el(`<div class="skill-row">
+      <div class="info">
+        <div class="name">${sk.name} ${equipped?'<span class="tag gold">装備中</span>':''}</div>
+        <div class="desc">${sk.desc}</div>
+      </div>
+    </div>`);
+    const btnWrap = document.createElement('div');
+    if(!owned){
+      const b = el(`<button class="btn secondary" style="padding:8px 10px;" ${S.hearts<sk.cost?'disabled':''}>💗${sk.cost}</button>`);
+      b.onclick = ()=>{
+        if(S.hearts<sk.cost) return;
+        S.hearts -= sk.cost; S.ownedSkills.push(key);
+        toast(`${sk.name}を習得した！`);
+        saveGame(); overlay.remove(); openTemple();
+      };
+      btnWrap.appendChild(b);
+    }else{
+      const b = el(`<button class="btn ${equipped?'danger':''}" style="padding:8px 10px;">${equipped?'外す':'装備'}</button>`);
+      b.onclick = ()=>{
+        if(equipped){
+          S.equippedSkills = S.equippedSkills.filter(k=>k!==key);
+        }else{
+          if(S.equippedSkills.length>=3){ toast('装備は最大3つまで'); return; }
+          S.equippedSkills.push(key);
+        }
+        saveGame(); overlay.remove(); openTemple();
+      };
+      btnWrap.appendChild(b);
+    }
+    row.appendChild(btnWrap);
+    sList.appendChild(row);
+  });
+  overlay.appendChild(sCard);
+
+  overlay.querySelector('#closeTemple').onclick = ()=> overlay.remove();
+  document.getElementById('app').appendChild(overlay);
+}
+
+/* =========================================================================
+   battle engine
+   ========================================================================= */
+
+function startBattle(stage, enemy, preBattleChoice, customPlayer){
+  const pStats = customPlayer ? customPlayer.stats : blessedStats(S.stats);
+  const pName = customPlayer ? customPlayer.name : starter().name;
+  const pMon = customPlayer ? customPlayer.mon : starter();
+  const isDevil = preBattleChoice==='devil';
+  const isAngel = preBattleChoice==='angel';
+  const isBoost = preBattleChoice==='boost';
+
+  const enemyMult = isDevil ? 1.3 : 1;
+  const angelMult = isAngel ? 1.2 : 1;
+
+  const playerHp = Math.round(pStats.hp * angelMult);
+  battleState = {
+    stage, preBattleChoice, devilPact:isDevil, angelPact:isAngel,
+    player:{
+      name:pName, mon:pMon,
+      hp:playerHp, maxHp:playerHp,
+      atk: Math.round(pStats.atk * angelMult * (isBoost?1.15:1)),
+      def: Math.round(pStats.def * angelMult),
+      spd: Math.round(pStats.spd * angelMult),
+      eva: Math.round(pStats.eva * angelMult),
+      acc:0, usedBuffs:[], cds:{}, status:{poison:0, confuse:0},
+    },
+    enemy:{
+      ...enemy, acc:0,
+      hp:Math.round(enemy.hp*enemyMult), maxHp:Math.round(enemy.maxHp*enemyMult),
+      atk:Math.round(enemy.atk*enemyMult), def:Math.round(enemy.def*enemyMult),
+      spd:Math.round(enemy.spd*enemyMult), eva:Math.round(enemy.eva*enemyMult),
+      status:{poison:0, confuse:0},
+    },
+    log:[
+      isBoost?'気合いを入れて戦いに挑む！':isDevil?'悪魔像と契約し、禍々しい力を借りた…！':isAngel?'天使像の加護を受けた！':`${enemy.name}が現れた！`,
+    ],
+    over:false, win:false, speed:1, timer:null, fx:null, skipped:false,
+  };
+  render();
+  battleState.timer = setTimeout(autoLoop, 1000);
+}
+
+function logMsg(m){ battleState.log.push(m); if(battleState.log.length>40) battleState.log.shift(); }
+
+function hpBarClass(ratio){ return ratio<.3?'low':ratio<.6?'mid':''; }
+
+function figFxClass(bs, side){
+  const fx = bs.fx;
+  if(!fx) return '';
+  const cls = [];
+  if(fx.actor===side && !fx.buff) cls.push(side==='player' ? 'lunge-right' : 'lunge-left');
+  if(fx.target===side && fx.buff) cls.push(fx.actor===fx.target ? 'buff-glow' : 'debuff-glow');
+  if(fx.target===side && !fx.buff) cls.push('hit-shake');
+  return cls.join(' ');
+}
+function dmgFloatHTML(bs, side){
+  const fx = bs.fx;
+  if(!fx || fx.target!==side) return '';
+  if(fx.buff) return `<div class="dmg-float buff">${fx.skillName||''}</div>`;
+  if(fx.missed) return `<div class="dmg-float miss">MISS</div>`;
+  if(typeof fx.dmg==='number') return `<div class="dmg-float ${fx.crit?'crit':''}">-${fx.dmg}</div>`;
+  return '';
+}
+
+function renderBattle(){
+  const bs = battleState;
+  const wrap = el(`<div class="screen"></div>`);
+
+  const eRatio = clamp(bs.enemy.hp/bs.enemy.maxHp,0,1);
+  const pRatio = clamp(bs.player.hp/bs.player.maxHp,0,1);
+
+  const arena = el(`<div class="arena-wrap card">
+    <div class="crowd-band"></div>
+    <div class="arena-floor" id="arenaFloor">
+      <div class="combatant-spot enemy-spot">
+        <div class="hp-pill">
+          <span class="pname">${bs.enemy.name}</span>
+          <div class="bar"><div class="bar-fill ${hpBarClass(eRatio)}" style="width:${eRatio*100}%"></div></div>
+          <span class="pnum">${Math.max(0,bs.enemy.hp)}</span>
+        </div>
+        <div class="mon-figure ${figFxClass(bs,'enemy')}">${monsterSVG(bs.enemy,78)}${dmgFloatHTML(bs,'enemy')}</div>
+      </div>
+      <div class="combatant-spot player-spot">
+        <div class="mon-figure ${figFxClass(bs,'player')}">${monsterSVG(bs.player.mon,98)}${dmgFloatHTML(bs,'player')}</div>
+        <div class="hp-pill">
+          <span class="pname">${bs.player.name}</span>
+          <div class="bar"><div class="bar-fill ${hpBarClass(pRatio)}" style="width:${pRatio*100}%"></div></div>
+          <span class="pnum">${Math.max(0,bs.player.hp)}</span>
+        </div>
+      </div>
+    </div>
+  </div>`);
+  wrap.appendChild(arena);
+
+  const log = el(`<div class="battle-log" id="battleLog">${bs.log.map(l=>`<div class="entry">${l}</div>`).join('')}</div>`);
+  wrap.appendChild(log);
+
+  if(!bs.over){
+    const controls = el(`<div class="battle-controls">
+      <div class="auto-badge"><span class="dot"></span>自動でたたかっています…</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn secondary" id="speedBtn" style="padding:8px 12px;">${bs.speed===2?'⏩ 2倍速':'▶ 通常速度'}</button>
+        <button class="btn secondary" id="skipBtn" style="padding:8px 12px;">結果までスキップ</button>
+      </div>
+    </div>`);
+    wrap.appendChild(controls);
+    controls.querySelector('#speedBtn').onclick = ()=>{ bs.speed = bs.speed===2?1:2; render(); };
+    controls.querySelector('#skipBtn').onclick = ()=> skipToEnd();
+  }else{
+    const isHunt = bs.stage.type==='hunt';
+    const resultMsg = bs.win
+      ? (bs.stage.type==='F' ? 'コロシアムに、再び光が戻った。' : isHunt ? '暴走したモンスターを鎮めた！' : 'クエストを達成した！')
+      : (isHunt ? '暴走したモンスターに敗れてしまった…' : (S.checkpoint===S.stageIndex ? '同じ育成ステージからやり直そう。' : '手前の育成ステージまで戻される…'));
+    const continueLabel = isHunt ? 'ハントの広場へ' : (bs.win ? (bs.stage.type==='F'?'エンディングへ':'先へ進む') : '仕切り直す');
+    const result = el(`<div class="card center-text" style="padding:22px 16px;">
+      <h2 style="color:${bs.win?'var(--ok)':'var(--crimson)'};">${bs.win?'勝利！':'敗北…'}</h2>
+      <p class="small dim" style="margin-top:8px;">${resultMsg}</p>
+      <button class="btn block" id="battleContinue" style="margin-top:16px;">${continueLabel}</button>
+    </div>`);
+    wrap.appendChild(result);
+    wrap.querySelector('#battleContinue').onclick = ()=> finishBattle();
+  }
+  return wrap;
+}
+
+/* the player's monster now acts on its own: normal attack, or — only if a
+   skill has been learned and equipped — a chance to unleash that skill instead. */
+const REPEATABLE_SKILL_KINDS = ['cond_dmg','status','dmg_debuff','roulette'];
+function decidePlayerAction(bs){
+  const p = bs.player;
+  const usable = S.equippedSkills.filter(key=>{
+    const sk = SKILLS[key];
+    const used = p.usedBuffs.includes(key);
+    const cdLeft = p.cds[key]||0;
+    if(cdLeft>0) return false;
+    if(!REPEATABLE_SKILL_KINDS.includes(sk.kind) && used) return false;
+    return true;
+  });
+  if(usable.length && Math.random()<0.45){ return {type:'skill', key:pick(usable)}; }
+  return {type:'attack'};
+}
+
+/* resolves exactly one round (both sides act once, in speed order) — no animation, used for instant skip */
+function stepOnce(bs){
+  if(bs.over) return;
+  const pAction = decidePlayerAction(bs);
+  const eAction = decideEnemyAction(bs);
+  const pFirst = bs.player.spd >= bs.enemy.spd;
+  const order = pFirst ? ['player','enemy'] : ['enemy','player'];
+
+  for(const side of order){
+    if(bs.enemy.hp<=0 || bs.player.hp<=0) break;
+    if(side==='player') resolvePlayerAction(bs, pAction);
+    else resolveEnemyAction(bs, eAction);
+  }
+  tickCooldowns(bs);
+
+  if(bs.enemy.hp<=0){ bs.over=true; bs.win=true; logMsg(`${bs.enemy.name}をたおした！`); }
+  else if(bs.player.hp<=0){ bs.over=true; bs.win=false; logMsg(`${bs.player.name}はたおれてしまった…`); }
+}
+
+function wait(ms){ return new Promise(res=> setTimeout(res, ms)); }
+
+/* resolves one round action-by-action, pausing between each hit so the
+   attack lunge / hit-flash / floating damage number can play out. */
+async function playRound(bs){
+  const pAction = decidePlayerAction(bs);
+  const eAction = decideEnemyAction(bs);
+  const pFirst = bs.player.spd >= bs.enemy.spd;
+  const seq = pFirst ? [['player',pAction],['enemy',eAction]] : [['enemy',eAction],['player',pAction]];
+  const beat = bs.speed===2 ? 300 : 640;
+
+  for(const [side, action] of seq){
+    if(bs.skipped || battleState!==bs) return;
+    if(bs.enemy.hp<=0 || bs.player.hp<=0) break;
+    const result = (side==='player') ? resolvePlayerAction(bs, action) : resolveEnemyAction(bs, action);
+    bs.fx = { actor:side, ...result };
+    render();
+    await wait(beat);
+    if(bs.skipped || battleState!==bs) return;
+  }
+  bs.fx = null;
+  tickCooldowns(bs);
+
+  if(bs.enemy.hp<=0){ bs.over=true; bs.win=true; logMsg(`${bs.enemy.name}をたおした！`); }
+  else if(bs.player.hp<=0){ bs.over=true; bs.win=false; logMsg(`${bs.player.name}はたおれてしまった…`); }
+  render();
+}
+
+/* drives the automatic round-by-round playback */
+async function autoLoop(){
+  const bs = battleState;
+  if(!bs || bs.over || bs.skipped) return;
+  await playRound(bs);
+  if(battleState===bs && !bs.over && !bs.skipped){
+    bs.timer = setTimeout(()=>autoLoop(), bs.speed===2 ? 220 : 480);
+  }
+}
+
+/* instantly resolves every remaining round, for impatient players */
+function skipToEnd(){
+  const bs = battleState;
+  if(!bs || bs.over) return;
+  bs.skipped = true;
+  clearTimeout(bs.timer);
+  bs.fx = null;
+  let guard = 0;
+  while(!bs.over && guard < 300){ stepOnce(bs); guard++; }
+  render();
+}
+
+function decideEnemyAction(bs){
+  const usable = bs.enemy.skills.filter(s=> (s.cdLeft||0)<=0 && !(s.cd>=99 && s.usedOnce));
+  if(usable.length && Math.random()<0.45){ return {type:'skill', skill:pick(usable)}; }
+  return {type:'attack'};
+}
+
+function tryHit(attackerAcc, defenderEva){
+  const chance = clamp(94 - defenderEva*0.9 + attackerAcc*18, 30, 99);
+  return Math.random()*100 < chance;
+}
+
+function basicDamage(atk, def){ return Math.max(1, Math.round(atk - def*0.42)); }
+
+/* confused units have a chance to hit themselves instead of acting */
+function checkConfuse(bs, side){
+  const self = side==='player' ? bs.player : bs.enemy;
+  if(!self.status || self.status.confuse<=0) return null;
+  self.status.confuse--;
+  if(Math.random() < 0.4){
+    const dmg = Math.max(1, Math.round(self.atk*0.5 - self.def*0.3));
+    self.hp -= dmg;
+    logMsg(`${self.name}は混乱している… 自分を攻撃してしまった！ ${dmg}のダメージ！`);
+    return {target:side, dmg, confused:true};
+  }
+  return null;
+}
+
+function resolvePlayerAction(bs, action){
+  const p = bs.player, e = bs.enemy;
+  if(p.hp<=0) return {target:null};
+  const confuseResult = checkConfuse(bs, 'player');
+  if(confuseResult) return confuseResult;
+  if(action.type==='attack'){
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}のこうげきは外れた！`); return {target:'enemy', missed:true}; }
+    const dmg = basicDamage(p.atk, e.def);
+    e.hp -= dmg;
+    logMsg(`${p.name}のこうげき！ ${e.name}に${dmg}のダメージ！`);
+    return {target:'enemy', dmg};
+  }
+  const sk = SKILLS[action.key];
+  if(sk.kind==='buff'){
+    p[sk.stat] = Math.round(p[sk.stat]*sk.mult);
+    if(sk.sideStat) p[sk.sideStat] = Math.round(p[sk.sideStat]*sk.sideMult);
+    p.usedBuffs.push(action.key);
+    logMsg(`${p.name}は${sk.name}を使った！`);
+    return {target:'player', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='debuff'){
+    if(sk.stat==='acc'){ e.acc = (e.acc||0) - 0.5; }
+    else { e[sk.stat] = Math.round(e[sk.stat]*sk.mult); }
+    p.usedBuffs.push(action.key);
+    logMsg(`${p.name}は${sk.name}を使った！ ${e.name}は弱体化した！`);
+    return {target:'enemy', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='cond_dmg'){
+    p.cds[action.key] = 2;
+    const ratio = e.hp/e.maxHp;
+    const conditionMet = sk.cond==='low' ? ratio<=0.35 : ratio>=0.6;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    if(conditionMet){
+      const dmg = Math.max(1, Math.round(p.atk*sk.mult - e.def*0.35));
+      e.hp -= dmg;
+      logMsg(`${sk.name}が炸裂！ ${e.name}に${dmg}の大ダメージ！`);
+      return {target:'enemy', dmg, crit:true};
+    }else{
+      const dmg = basicDamage(Math.round(p.atk*.6), e.def);
+      e.hp -= dmg;
+      logMsg(`${sk.name}は不発…わずかに${dmg}のダメージ。`);
+      return {target:'enemy', dmg};
+    }
+  }
+  if(sk.kind==='status'){
+    p.cds[action.key] = 3;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    e.status[sk.status] = (e.status[sk.status]||0) + 3;
+    const label = sk.status==='poison' ? '毒' : '混乱';
+    logMsg(`${p.name}は${sk.name}を使った！ ${e.name}は${label}状態になった！`);
+    return {target:'enemy', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='dmg_debuff'){
+    p.cds[action.key] = 3;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const dmg = Math.max(1, Math.round(p.atk*sk.dmgMult - e.def*0.3));
+    e.hp -= dmg;
+    e[sk.stat] = Math.max(1, Math.round(e[sk.stat]*sk.mult));
+    logMsg(`${sk.name}が命中！ ${e.name}に${dmg}のダメージと${statKeyLabel(sk.stat)}の大幅低下！`);
+    return {target:'enemy', dmg, crit:true};
+  }
+  if(sk.kind==='roulette'){
+    p.cds[action.key] = 4;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const outcome = pick(AI_ROULETTE);
+    outcome.apply(e);
+    logMsg(`${p.name}は${sk.name}を発動！ 愛のルーレット――「${outcome.label}」！`);
+    logMsg(outcome.msg(e.name));
+    return {target:'enemy', buff:true, skillName:`${sk.name}：${outcome.label}`};
+  }
+  return {target:null};
+}
+
+function resolveEnemyAction(bs, action){
+  const p = bs.player, e = bs.enemy;
+  if(e.hp<=0) return {target:null};
+  const confuseResult = checkConfuse(bs, 'enemy');
+  if(confuseResult) return confuseResult;
+  if(action.type==='attack'){
+    if(!tryHit(e.acc, p.eva)){ logMsg(`${e.name}のこうげきは外れた！`); return {target:'player', missed:true}; }
+    const dmg = basicDamage(e.atk, p.def);
+    p.hp -= dmg;
+    logMsg(`${e.name}のこうげき！ ${p.name}に${dmg}のダメージ！`);
+    return {target:'player', dmg};
+  }
+  const sk = action.skill;
+  sk.cdLeft = sk.cd; sk.usedOnce = true;
+  switch(sk.type){
+    case 'debuff_enemy':
+      p[sk.stat] = Math.max(1, Math.round(p[sk.stat]*sk.mult));
+      logMsg(`${e.name}は${sk.name}を使った！ ${p.name}は弱体化した！`);
+      return {target:'player', buff:true, skillName:sk.name};
+    case 'buff_self':
+      e[sk.stat] = Math.round(e[sk.stat]*sk.mult);
+      logMsg(`${e.name}は${sk.name}を使った！ 自身を強化した！`);
+      return {target:'enemy', buff:true, skillName:sk.name};
+    case 'debuff_enemy_random':{
+      const stat = pick(['atk','def','spd']);
+      p[stat] = Math.max(1, Math.round(p[stat]*sk.mult));
+      logMsg(`${e.name}の${sk.name}！ ${p.name}の${statKeyLabel(stat)}が大きく下がった！`);
+      return {target:'player', buff:true, skillName:sk.name};
+    }
+    case 'magic_dmg':{
+      const mag = Math.round((e.atk + e.spd*1.5) * sk.mult);
+      const dmg = Math.max(1, Math.round(mag - p.def*0.3));
+      p.hp -= dmg;
+      logMsg(`${e.name}の${sk.name}！ 魔力の一撃で${dmg}のダメージ！`);
+      return {target:'player', dmg, crit:true};
+    }
+    case 'dmg_debuff':{
+      const dmg = Math.max(1, Math.round(e.atk*sk.dmgMult - p.def*0.4));
+      p.hp -= dmg;
+      p[sk.stat] = Math.max(1, Math.round(p[sk.stat]*sk.mult));
+      logMsg(`${e.name}の${sk.name}！ ${dmg}のダメージと${statKeyLabel(sk.stat)}低下！`);
+      return {target:'player', dmg};
+    }
+    case 'big_dmg':{
+      const dmg = Math.max(1, Math.round(e.atk*sk.mult - p.def*0.3));
+      p.hp -= dmg;
+      logMsg(`${e.name}の${sk.name}！ ${dmg}の大ダメージ！`);
+      return {target:'player', dmg, crit:true};
+    }
+    case 'debuff_all_big':
+      ['atk','def','spd','eva'].forEach(k=> p[k]=Math.max(1,Math.round(p[k]*sk.mult)));
+      logMsg(`${e.name}の${sk.name}！ ${p.name}の全ステータスが大幅に下がった！`);
+      return {target:'player', buff:true, skillName:sk.name};
+  }
+  return {target:null};
+}
+
+function tickCooldowns(bs){
+  Object.keys(bs.player.cds).forEach(k=>{ if(bs.player.cds[k]>0) bs.player.cds[k]--; });
+  bs.enemy.skills.forEach(s=>{ if(s.cdLeft>0) s.cdLeft--; });
+  [bs.player, bs.enemy].forEach(unit=>{
+    if(unit.status && unit.status.poison>0 && unit.hp>0){
+      const dmg = Math.max(1, Math.round(unit.maxHp*0.07));
+      unit.hp -= dmg;
+      unit.status.poison--;
+      logMsg(`${unit.name}は毒のダメージを受けた！ ${dmg}のダメージ！`);
+    }
+  });
+}
+
+function finishBattle(){
+  const bs = battleState;
+  clearTimeout(bs.timer);
+  const stage = bs.stage;
+
+  if(stage.type==='hunt'){
+    battleState = null;
+    if(bs.win){
+      account.huntWins += 1;
+      const medalPrize = Math.round(stage.rarity.mult * 15);
+      account.medals += medalPrize;
+      toast(`ハント成功！ 🪙+${medalPrize}`);
+    }else{
+      toast('ハント失敗…また挑戦しよう');
+    }
+    saveAccount();
+    render();
+    return;
+  }
+
+  if(bs.win){
+    /* コロシアムメダルはボス討伐後のみ獲得できる（ミニ討伐は0枚） */
+    const medalGain = stage.type==='F' ? 150 : (stage.type==='B' ? 25+stage.world*8 : 0);
+    const heartGain = stage.type==='F'?0:(stage.type==='B'?rnd(3,6):rnd(1,3));
+    if(medalGain>0){ account.medals += medalGain; saveAccount(); }
+    S.hearts += heartGain;
+    if(stage.type==='B' || stage.type==='F'){
+      const baseBonus = stage.type==='F' ? 20 : (1+stage.world);
+      const bonus = bs.devilPact ? baseBonus*3 : baseBonus;
+      ['hp','atk','def','spd','eva'].forEach(k=> S.stats[k] += bonus);
+    }
+    markCleared(stage);
+    battleState = null;
+    if(stage.type==='F'){ S.ending=true; saveGame(); render(); return; }
+    advanceStage();
+    saveGame();
+    toast(`勝利！${medalGain?` 🪙+${medalGain}`:''}${heartGain?` 💗+${heartGain}`:''}`);
+  }else{
+    battleState = null;
+    if(stage.type==='M' || stage.type==='B' || stage.type==='F'){
+      S.lives = Math.max(0, S.lives-1);
+      if(S.lives<=0){
+        S.gameOver = true;
+        saveGame();
+        render();
+        return;
+      }
+    }
+    /* 火山・コロシアム（world 6・7）では、同じ育成地点への「負けて戻る」リトライは一度きり。
+       これを外すと、リトライチケット＋ライフを使って後半の高倍率トレーニングを
+       無限に周回できてしまう不具合があったための対策。 */
+    const isLateGame = (stage.world===6 || stage.world===7);
+    if(isLateGame && S.lateGameRetryUsedFor===S.checkpoint){
+      toast('この地では、同じ育成地点への後戻りは一度きり…気を引き締めてもう一度！');
+    }else{
+      if(isLateGame) S.lateGameRetryUsedFor = S.checkpoint;
+      S.stageIndex = S.checkpoint;
+    }
+    saveGame();
+  }
+  render();
+}
+
+/* ---------------- license card (shown once, after success or game over) ---------------- */
+function renderLicenseCard(mode){
+  const bstats = blessedStats(S.stats);
+  const defaultName = S.monsterName || starter().name;
+  const iconOf = {hp:'❤',atk:'⚔',def:'🛡',spd:'👟',eva:'✦'};
+  const wrap = el(`<div class="screen center-text" style="padding-top:28px; gap:18px;"></div>`);
+  wrap.innerHTML = `
+    <div class="license-card">
+      <div class="license-header">
+        <div class="license-seal">${mode==='success'?'🏆':'📜'}</div>
+        <div class="license-title">育成${mode==='success'?'完了':'終了'}証</div>
+        <div class="tiny" style="color:#7a5c30;">Colosseum Monsters</div>
+      </div>
+      <div style="display:flex; justify-content:center; margin:10px 0;">${monsterSVG(starter(),96)}</div>
+      <div class="license-namewrap">
+        <label class="tiny" for="monNameInput" style="color:#5c4326; font-weight:800;">この子の名前</label>
+        <input id="monNameInput" class="license-name-input" maxlength="10" value="${defaultName}">
+      </div>
+      <div class="stat-banner" style="margin-top:14px;">
+        ${['hp','atk','def','spd','eva'].map(k=>{
+          const rank = getStatRank(bstats[k]);
+          return `<div class="stat-col"><div class="stat-label">${iconOf[k]} ${statKeyLabel(k)}</div><div class="stat-value-row"><span class="rank-badge">${rank}</span><span class="stat-num">${bstats[k]}</span></div></div>`;
+        }).join('')}
+      </div>
+      <div class="power-panel">
+        <div class="power-panel-label">合計戦闘力</div>
+        <div class="power-panel-value"><span class="power-rank-badge">${getPowerRank(computePower(bstats)).key}</span><span class="power-num">${computePower(bstats)}</span></div>
+        <p class="tiny power-panel-comment">${getPowerRank(computePower(bstats)).comment}</p>
+      </div>
+      <p class="small license-flavor" style="margin-top:14px; line-height:1.85;">
+        ${mode==='success'
+          ? `${starter().name}と共に歩んだ長い旅の果て、ついにダイキュアを打ち倒し、コロシアムに光が戻った。ここにその証を刻む。`
+          : `討伐クエストに5回敗れ、${starter().name}の育成はここで一区切りとなった。ただしこれは育成の終わりであって、この子自身が消えてしまうわけではない。ここにその証を刻む。`}
+      </p>
+    </div>
+    <button class="btn block" id="licenseConfirm" style="max-width:280px;">証を受け取る</button>
+  `;
+  wrap.querySelector('#licenseConfirm').onclick = ()=>{
+    const input = wrap.querySelector('#monNameInput');
+    const name = (input.value||'').trim().slice(0,10) || starter().name;
+    S.monsterName = name;
+    S.licenseSeen = true;
+    account.roster.push({
+      id:'mon_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),
+      speciesId:S.monsterId,
+      name, stats:bstats, outcome:mode,
+      dateISO:new Date().toISOString(),
+    });
+    S.gameOver = false;
+    S.ending = false;
+    S.viewMode = 'room';
+    S.runActive = false;
+    saveAccount();
+    saveGame();
+    render();
+  };
+  return wrap;
+}
+
+/* =========================================================================
+   自室 & 別タブ（育成モンスター一覧／ハント／フレンドバトル／引き継ぎ）
+   ========================================================================= */
+const ROOM_TABS = [
+  {key:'roster',   label:'一覧',     icon:'📋'},
+  {key:'hunt',     label:'ハント',   icon:'🏹'},
+  {key:'friend',   label:'フレンド', icon:'⚔️'},
+  {key:'room',     label:'自室',     icon:'🏠'},
+  {key:'transfer', label:'引き継ぎ', icon:'🔑'},
+];
+let rosterSort = 'total';
+let huntSquadSelection = [];
+
+function renderRoomShell(activeTab){
+  const key = ROOM_TABS.some(t=>t.key===activeTab) ? activeTab : 'room';
+  const wrap = el(`<div class="screen" style="padding-bottom:96px;"></div>`);
+  const contentMap = {roster:renderRosterTab, hunt:renderHuntTab, friend:renderFriendTab, transfer:renderTransferTab, room:renderRoomTab};
+  wrap.appendChild(contentMap[key]());
+  const tabBar = el(`<div class="tab-bar"></div>`);
+  ROOM_TABS.forEach(t=>{
+    const btn = el(`<button class="tab-btn ${key===t.key?'active':''}"><span class="tab-icon">${t.icon}</span><span class="tab-label">${t.label}</span></button>`);
+    btn.onclick = ()=>{ S.viewMode = t.key; saveGame(); render(); };
+    tabBar.appendChild(btn);
+  });
+  wrap.appendChild(tabBar);
+  return wrap;
+}
+
+function totalPower(stats){ return stats.hp+stats.atk+stats.def+stats.spd+stats.eva; }
+
+/* ---- 自室タブ ---- */
+let roomViewedId = null; // null = default view; 'live' = explicit active run; else a roster entry id
+function resolveRoomView(hasActiveRun){
+  if(roomViewedId==='live' && hasActiveRun) return {isLive:true};
+  if(roomViewedId){ const m = account.roster.find(x=>x.id===roomViewedId); if(m) return {isLive:false, entry:m}; }
+  if(hasActiveRun) return {isLive:true};
+  const latest = account.roster[account.roster.length-1];
+  return latest ? {isLive:false, entry:latest} : null;
+}
+
+function renderRoomTab(){
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  const hasActiveRun = !!(S.started && S.monsterId && S.runActive);
+  const view = resolveRoomView(hasActiveRun);
+  const displaySpecies = view ? (view.isLive ? starter() : STARTERS[view.entry.speciesId]) : null;
+  const displayName = view ? (view.isLive ? (S.monsterName || starter().name) : view.entry.name) : '';
+
+  wrap.appendChild(el(`<div class="room-scene">
+    <div class="room-bg">
+      <div class="room-window"><div class="room-cloud"></div><div class="room-cloud c2"></div></div>
+      <div class="room-rug"></div>
+      ${displaySpecies ? `<div class="room-pet">${monsterSVG(displaySpecies,110)}</div>` : ''}
+    </div>
+    <div class="room-caption">${displaySpecies ? `${displayName}がくつろいでいる。` : 'まだ迎えたモンスターがいない。'}</div>
+  </div>`));
+
+  if(hasActiveRun || account.roster.length>0){
+    const pickerWrap = el(`<div class="room-picker"></div>`);
+    if(hasActiveRun){
+      const active = !!(view && view.isLive);
+      const liveBtn = el(`<button class="room-picker-item ${active?'active':''}" title="育成中">${monsterSVG(starter(),38)}</button>`);
+      liveBtn.onclick = ()=>{ roomViewedId='live'; render(); };
+      pickerWrap.appendChild(liveBtn);
+    }
+    account.roster.slice().reverse().forEach(m=>{
+      const sp = STARTERS[m.speciesId];
+      const active = !!(view && !view.isLive && view.entry.id===m.id);
+      const btn = el(`<button class="room-picker-item ${active?'active':''}" title="${m.name}">${monsterSVG(sp||{shape:'kaiju',colorA:'#888',colorB:'#444'},38)}</button>`);
+      btn.onclick = ()=>{ roomViewedId=m.id; render(); };
+      pickerWrap.appendChild(btn);
+    });
+    wrap.appendChild(pickerWrap);
+  }
+
+  wrap.appendChild(el(`<div class="card">
+    <div class="tiny dim">育成済みモンスター：${account.roster.length}体　所持メダル：🪙${account.medals}</div>
+  </div>`));
+
+  if(hasActiveRun){
+    const resumeBtn = el(`<button class="btn block" id="resumeBtn" style="padding:16px;">▶ 育成へ戻る</button>`);
+    wrap.appendChild(resumeBtn);
+    resumeBtn.onclick = ()=>{ S.viewMode='game'; saveGame(); render(); };
+  }
+
+  const newRunBtn = el(`<button class="btn ${hasActiveRun?'secondary':''} block" id="newRunBtn">🆕 新しい挑戦をはじめる</button>`);
+  wrap.appendChild(newRunBtn);
+  newRunBtn.onclick = ()=>{
+    if(hasActiveRun){
+      showConfirmModal({
+        title:'新しい挑戦を始めますか？',
+        message:'現在進行中の育成データは失われます。心配なら先に「引き継ぎ」タブでキーを発行しておこう。',
+        dangerous:true,
+        onYes: startNewRun,
+      });
+    }else{
+      startNewRun();
+    }
+  };
+
+  const titleBtn = el(`<button class="btn secondary block" id="toTitleBtn2">タイトル画面へ</button>`);
+  wrap.appendChild(titleBtn);
+  titleBtn.onclick = ()=>{ S.started=false; S.viewMode='game'; saveGame(); render(); };
+
+  return wrap;
+}
+
+/* ---- 育成モンスター一覧タブ ---- */
+function renderRosterTab(){
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  wrap.appendChild(el(`<h2 style="color:var(--gold-hi); font-size:1.15rem;">📋 育成モンスター一覧</h2>`));
+  const sortRow = el(`<div style="display:flex; gap:8px;">
+    <button class="btn secondary" data-s="atk" style="padding:9px 6px; flex:1; font-size:.82rem;">攻撃力順</button>
+    <button class="btn secondary" data-s="def" style="padding:9px 6px; flex:1; font-size:.82rem;">防御力順</button>
+    <button class="btn secondary" data-s="total" style="padding:9px 6px; flex:1; font-size:.82rem;">合計戦闘力順</button>
+  </div>`);
+  wrap.appendChild(sortRow);
+  const listWrap = el(`<div style="display:flex; flex-direction:column; gap:8px;"></div>`);
+  wrap.appendChild(listWrap);
+
+  function refresh(){
+    sortRow.querySelectorAll('button').forEach(b=> b.classList.toggle('selected', b.dataset.s===rosterSort));
+    listWrap.innerHTML = '';
+    if(account.roster.length===0){
+      listWrap.appendChild(el(`<div class="card center-text"><p class="small dim">まだ育成を終えたモンスターがいません。</p></div>`));
+      return;
+    }
+    const sorted = [...account.roster].sort((a,b)=>{
+      if(rosterSort==='total') return totalPower(b.stats)-totalPower(a.stats);
+      return (b.stats[rosterSort]||0) - (a.stats[rosterSort]||0);
+    });
+    sorted.forEach(m=>{
+      const sp = STARTERS[m.speciesId];
+      const power = computePower(m.stats);
+      const prank = getPowerRank(power).key;
+      listWrap.appendChild(el(`<div class="card" style="display:flex; gap:12px; align-items:center; padding:12px;">
+        <div class="mon-avatar-wrap" style="padding:0;">${monsterSVG(sp||{shape:'kaiju',colorA:'#888',colorB:'#444'},52)}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:900; color:var(--gold-hi); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${m.name}<span class="tiny dim">（${sp?sp.name:'？'}）</span></div>
+          <div class="tiny dim">HP${m.stats.hp}・攻${m.stats.atk}・防${m.stats.def}・速${m.stats.spd}・回${m.stats.eva}</div>
+          <div class="tiny dim">戦闘力 ${power}（${prank}）</div>
+        </div>
+        <div class="tag ${m.outcome==='success'?'gold':'heart'}">${m.outcome==='success'?'完了':'挑戦'}</div>
+      </div>`));
+    });
+  }
+  sortRow.querySelectorAll('button').forEach(b=>{ b.onclick = ()=>{ rosterSort=b.dataset.s; refresh(); }; });
+  refresh();
+  return wrap;
+}
+
+/* ---- ハントタブ（派遣隊：最大3体） ---- */
+function renderHuntTab(){
+  huntSquadSelection = huntSquadSelection.filter(id=> account.roster.some(m=>m.id===id));
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  wrap.appendChild(el(`<h2 style="color:var(--gold-hi); font-size:1.15rem;">🏹 ハント（派遣隊）</h2>`));
+  wrap.appendChild(el(`<p class="small dim" style="line-height:1.7;">育てたモンスターの中から最大3体を選んで派遣しよう。選んだ仲間の力を合わせて、暴走したモンスターに挑む。</p>`));
+
+  const pickWrap = el(`<div style="display:flex; flex-direction:column; gap:8px;"></div>`);
+  wrap.appendChild(pickWrap);
+  function refreshPick(){
+    pickWrap.innerHTML = '';
+    if(account.roster.length===0){
+      pickWrap.appendChild(el(`<div class="card center-text"><p class="small dim">まだ育成を終えたモンスターがいません。</p></div>`));
+      return;
+    }
+    account.roster.forEach(m=>{
+      const sp = STARTERS[m.speciesId];
+      const selected = huntSquadSelection.includes(m.id);
+      const row = el(`<button class="skill-row" style="width:100%; text-align:left; border-color:${selected?'var(--gold)':'rgba(255,255,255,.08)'}; ${selected?'background:rgba(232,171,69,.14);':''}">
+        <div class="mon-avatar-wrap" style="padding:0;">${monsterSVG(sp||{shape:'kaiju',colorA:'#888',colorB:'#444'},44)}</div>
+        <div class="info"><div class="name">${m.name}</div><div class="desc">HP${m.stats.hp}・攻${m.stats.atk}・防${m.stats.def}・速${m.stats.spd}・回${m.stats.eva}</div></div>
+        ${selected?'<span class="tag gold">選択中</span>':''}
+      </button>`);
+      row.onclick = ()=>{
+        if(selected){ huntSquadSelection = huntSquadSelection.filter(id=>id!==m.id); }
+        else{
+          if(huntSquadSelection.length>=3){ toast('派遣は最大3体まで'); return; }
+          huntSquadSelection.push(m.id);
+        }
+        refreshPick();
+        updateGoBtn();
+      };
+      pickWrap.appendChild(row);
+    });
+  }
+
+  const attemptNum = account.huntAttempts + 1;
+  const cost = huntCost(attemptNum);
+  const goCard = el(`<div class="card">
+    <p class="small" style="margin-bottom:6px;">次の挑戦：<b style="color:var(--gold-hi);">${attemptNum}回目</b>　挑戦${account.huntAttempts}回・勝利${account.huntWins}回</p>
+    <p class="small dim" style="margin-bottom:12px;">費用：${cost===0?'初回無料':'🪙'+cost}</p>
+    <button class="btn block" id="huntGoBtn" style="padding:16px;">ハントに出発する</button>
+  </div>`);
+  wrap.appendChild(goCard);
+  const goBtn = goCard.querySelector('#huntGoBtn');
+  function updateGoBtn(){
+    goBtn.disabled = huntSquadSelection.length===0 || account.medals<cost;
+  }
+
+  wrap.appendChild(el(`<div class="card"><p class="tiny dim" style="line-height:1.7;">出現レアリティー：ノーマル50%／パープル30%／ゴールド19%／レインボー1%<br>レアリティーが高いほど敵は強いが、報酬も豪華になる。</p></div>`));
+
+  refreshPick();
+  updateGoBtn();
+
+  goBtn.onclick = ()=>{
+    if(huntSquadSelection.length===0){ toast('派遣するモンスターを選ぼう'); return; }
+    if(account.medals<cost){ toast('メダルが足りない…'); return; }
+    account.medals -= cost;
+    account.huntAttempts += 1;
+    const squad = account.roster.filter(m=>huntSquadSelection.includes(m.id));
+    const combined = combineSquadStats(squad);
+    const rarity = rollHuntRarity();
+    const mob = pick(Object.values(HUNT_MOBS));
+    const enemy = {
+      name:`暴走${mob.name}（${rarity.label}）`,
+      colorA:mob.colorA, colorB:mob.colorB, shape:mob.shape,
+      hp:Math.round(mob.hp*rarity.mult), maxHp:Math.round(mob.hp*rarity.mult),
+      atk:Math.round(mob.atk*rarity.mult), def:Math.round(mob.def*rarity.mult),
+      eva:mob.eva, spd:Math.round(mob.spd*rarity.mult),
+      skills:[],
+    };
+    saveAccount();
+    const leadSpecies = STARTERS[squad[0].speciesId] || {shape:'kaiju', colorA:'#888', colorB:'#444'};
+    startBattle({type:'hunt', rarity}, enemy, 'none', {
+      name: squad.map(s=>s.name).join('・'),
+      mon: leadSpecies,
+      stats: combined,
+    });
+  };
+
+  return wrap;
+}
+function combineSquadStats(squad){
+  const sum = {hp:0,atk:0,def:0,spd:0,eva:0};
+  squad.forEach(m=>{ ['hp','atk','def','spd','eva'].forEach(k=> sum[k]+=(m.stats[k]||0)); });
+  const n = squad.length;
+  sum.spd = Math.round(sum.spd/n);
+  sum.eva = Math.round(sum.eva/n);
+  return sum;
+}
+
+/* ---- フレンドバトルタブ（未実装） ---- */
+function renderFriendTab(){
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  wrap.appendChild(el(`<h2 style="color:var(--gold-hi); font-size:1.15rem;">⚔️ フレンドバトル</h2>`));
+  wrap.appendChild(el(`<div class="card center-text" style="padding:36px 20px;">
+    <div style="font-size:2.4rem;">🚧</div>
+    <div style="font-weight:900; color:var(--gold-hi); font-size:1.15rem; margin-top:8px;">Coming soon…</div>
+    <p class="small dim" style="line-height:1.85; margin-top:12px;">合言葉を決めて、フレンドの育てたモンスターと対戦できる機能を準備中。もうしばらく待っていてほしい。</p>
+  </div>`));
+  return wrap;
+}
+
+/* ---- 引き継ぎタブ ---- */
+function renderTransferTab(){
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  wrap.appendChild(el(`<h2 style="color:var(--gold-hi); font-size:1.15rem;">🔑 データ引き継ぎ</h2>`));
+  wrap.appendChild(el(`<p class="small dim" style="line-height:1.8;">ブラウザの変更やサイトの更新でデータと離れてしまっても大丈夫なように、引き継ぎキーを発行できる。次の端末やブラウザでこのキーを読み込めば、育成状況を復元できる。</p>`));
+
+  const genCard = el(`<div class="card">
+    <button class="btn block" id="genKeyBtn">引き継ぎキーを発行する</button>
+    <textarea id="keyOutput" readonly class="transfer-key-box" style="display:none;"></textarea>
+    <button class="btn secondary block" id="copyKeyBtn" style="display:none; margin-top:8px;">コピーする</button>
+  </div>`);
+  wrap.appendChild(genCard);
+  genCard.querySelector('#genKeyBtn').onclick = ()=>{
+    const payload = {v:1, S, account};
+    const key = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    const out = genCard.querySelector('#keyOutput');
+    out.value = key;
+    out.style.display = 'block';
+    genCard.querySelector('#copyKeyBtn').style.display = 'flex';
+  };
+  genCard.querySelector('#copyKeyBtn').onclick = async ()=>{
+    const out = genCard.querySelector('#keyOutput');
+    try{ await navigator.clipboard.writeText(out.value); toast('コピーしました'); }
+    catch(e){ out.select(); toast('選択したので手動でコピーしてください'); }
+  };
+
+  const loadCard = el(`<div class="card">
+    <p class="small" style="margin-bottom:8px;">キーを読み込んで復元する</p>
+    <textarea id="keyInput" class="transfer-key-box" placeholder="ここに引き継ぎキーを貼り付け"></textarea>
+    <button class="btn block" id="loadKeyBtn" style="margin-top:8px;">読み込む</button>
+  </div>`);
+  wrap.appendChild(loadCard);
+  loadCard.querySelector('#loadKeyBtn').onclick = ()=>{
+    const raw = loadCard.querySelector('#keyInput').value.trim();
+    if(!raw){ toast('キーを入力してください'); return; }
+    let payload;
+    try{ payload = JSON.parse(decodeURIComponent(escape(atob(raw)))); }
+    catch(e){ toast('キーが正しくありません'); return; }
+    if(!payload || !payload.S){ toast('キーが正しくありません'); return; }
+    showConfirmModal({
+      title:'データを復元しますか？',
+      message:'現在のデータは上書きされます。よろしいですか？',
+      dangerous:true,
+      onYes:()=>{
+        S = Object.assign(freshState(), payload.S);
+        account = Object.assign(freshAccount(), payload.account||{});
+        saveGame(); saveAccount();
+        toast('復元しました');
+        render();
+      },
+    });
+  };
+
+  return wrap;
+}
+
+/* =========================================================================
+   boot
+   ========================================================================= */
+(async function boot(){
+  await loadGame();
+  render();
+})();
+</script>
+</body>
+</html>
