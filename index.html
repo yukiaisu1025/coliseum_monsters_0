@@ -485,45 +485,37 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 .battle-log .entry:last-child{color:var(--parchment); font-weight:700;}
 .action-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
 
-/* arena scene (auto-battle) */
-.arena-wrap{padding:0; overflow:hidden; position:relative;}
-.crowd-band{
-  height:64px; position:relative;
-  background-color:#4a1a1f;
-  background-image:
-    radial-gradient(circle at 6px 9px, #e8c9a0 2.6px, transparent 3.4px),
-    radial-gradient(circle at 19px 21px, #d9a877 2.6px, transparent 3.4px),
-    radial-gradient(circle at 12px 34px, #c98f8f 2.6px, transparent 3.4px),
-    radial-gradient(circle at 27px 46px, #e8c9a0 2.6px, transparent 3.4px);
-  background-size:26px 56px;
-  box-shadow:inset 0 -14px 18px -8px rgba(0,0,0,.6);
-  border-bottom:4px solid var(--gold);
+/* battle: fullscreen presentation */
+.battle-fullscreen{
+  position:fixed; inset:0; z-index:35; max-width:480px; margin:0 auto;
+  height:100dvh; height:100vh; display:flex; flex-direction:column; overflow:hidden;
+  background:var(--stone-deep);
 }
-.crowd-band::before{
-  content:''; position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(20,8,10,.05), rgba(20,8,10,.55));
+.battle-top-bar{
+  display:flex; align-items:center; justify-content:space-between; padding:10px 14px;
+  background:rgba(0,0,0,.35); border-bottom:1px solid rgba(232,171,69,.2); flex-shrink:0;
 }
-.crowd-band .pennant{position:absolute; top:0; width:14px; height:22px; background:var(--crimson); border:1px solid var(--gold);}
-.arena-floor{
-  position:relative; height:196px;
-  background:
-    radial-gradient(ellipse 78% 62% at 50% 38%, #c15335 0%, #8a2f1e 55%, #4a160d 100%);
+.battle-arena-full{ position:relative; flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+.arena-floor-full{
+  position:relative; flex:1;
+  background:radial-gradient(ellipse 78% 62% at 50% 38%, #c15335 0%, #8a2f1e 55%, #4a160d 100%);
+  overflow:hidden;
 }
-.arena-floor::after{
-  content:''; position:absolute; left:50%; top:44%; width:132px; height:76px; transform:translate(-50%,-50%);
+.arena-floor-full::after{
+  content:''; position:absolute; left:50%; top:46%; width:44%; height:26%; transform:translate(-50%,-50%);
   border:3px solid rgba(232,171,69,.45); border-radius:50%;
 }
-.arena-floor::before{
-  content:''; position:absolute; left:50%; top:44%; width:74px; height:42px; transform:translate(-50%,-50%);
+.arena-floor-full::before{
+  content:''; position:absolute; left:50%; top:46%; width:24%; height:14%; transform:translate(-50%,-50%);
   border:2px solid rgba(232,171,69,.3); border-radius:50%;
 }
 .combatant-spot{position:absolute; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:2;}
-.combatant-spot.enemy-spot{top:6px; right:14px;}
-.combatant-spot.player-spot{bottom:2px; left:14px;}
+.combatant-spot.enemy-spot{top:6%; right:8%;}
+.combatant-spot.player-spot{bottom:6%; left:8%;}
 .mon-figure{position:relative; display:inline-block;}
 .combatant-spot .mon-figure svg{filter:drop-shadow(0 8px 8px rgba(0,0,0,.45)); transition:filter .15s ease;}
-.combatant-spot.enemy-spot .mon-figure svg{width:78px; height:78px;}
-.combatant-spot.player-spot .mon-figure svg{width:98px; height:98px;}
+.combatant-spot.enemy-spot .mon-figure svg{width:min(24vw,92px); height:min(24vw,92px);}
+.combatant-spot.player-spot .mon-figure svg{width:min(30vw,116px); height:min(30vw,116px);}
 .mon-figure.lunge-right{animation:lungeRight .62s cubic-bezier(.34,1.4,.64,1);}
 .mon-figure.lunge-left{animation:lungeLeft .62s cubic-bezier(.34,1.4,.64,1);}
 .mon-figure.hit-shake{animation:hitShake .46s ease;}
@@ -537,29 +529,86 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 @keyframes buffGlow{0%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}40%{filter:brightness(1.7) drop-shadow(0 0 12px #f5c876);}100%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}}
 @keyframes debuffGlow{0%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}40%{filter:brightness(.7) saturate(.4) drop-shadow(0 0 12px #9b6fd1);}100%{filter:brightness(1) drop-shadow(0 8px 8px rgba(0,0,0,.45));}}
 .hp-pill{
-  display:flex; align-items:center; gap:6px; background:rgba(10,6,8,.62);
-  border:1.5px solid rgba(255,255,255,.28); border-radius:100px; padding:4px 10px 4px 9px;
-  box-shadow:0 3px 8px rgba(0,0,0,.4); white-space:nowrap;
+  display:flex; align-items:center; gap:6px; background:rgba(10,6,8,.68);
+  border:1.5px solid rgba(255,255,255,.32); border-radius:100px; padding:5px 11px 5px 10px;
+  box-shadow:0 3px 10px rgba(0,0,0,.45); white-space:nowrap;
 }
-.hp-pill .pname{font-size:.68rem; font-weight:900; color:#fff;}
-.hp-pill .bar{width:54px; height:8px; border-radius:6px; background:rgba(0,0,0,.55); overflow:hidden;}
+.hp-pill .pname{font-size:.72rem; font-weight:900; color:#fff;}
+.hp-pill .bar{width:58px; height:9px; border-radius:6px; background:rgba(0,0,0,.55); overflow:hidden;}
 .hp-pill .bar-fill{height:100%; background:linear-gradient(90deg,#5fbf78,#8fe3a0); transition:width .5s ease;}
 .hp-pill .bar-fill.mid{background:linear-gradient(90deg,#dcab3d,#f0cf7a);}
 .hp-pill .bar-fill.low{background:linear-gradient(90deg,#c0453b,#e5837a);}
-.hp-pill .pnum{font-size:.66rem; font-weight:900; color:var(--gold-hi); min-width:20px; text-align:right;}
+.hp-pill .pnum{font-size:.7rem; font-weight:900; color:var(--gold-hi); min-width:22px; text-align:right;}
+
+/* damage numbers — redesigned for clarity */
 .dmg-float{
-  position:absolute; top:22%; left:50%; margin-left:-28px; width:56px; text-align:center;
-  font-weight:900; font-size:1.05rem; color:#ffd9a0; text-shadow:0 2px 5px rgba(0,0,0,.7), 0 0 8px rgba(0,0,0,.5);
-  animation:dmgFloat .85s ease forwards; pointer-events:none; z-index:8;
+  position:absolute; top:14%; left:50%; margin-left:-34px; width:68px; text-align:center;
+  font-weight:900; font-size:1.5rem; color:#fff;
+  -webkit-text-stroke:2px rgba(90,20,10,.9);
+  paint-order:stroke fill;
+  text-shadow:0 3px 6px rgba(0,0,0,.6);
+  animation:dmgFloat .9s cubic-bezier(.2,.9,.3,1) forwards; pointer-events:none; z-index:9;
 }
-.dmg-float.crit{color:#ff8a5c; font-size:1.28rem;}
-.dmg-float.miss{color:#d8c9b3; font-size:.82rem; font-style:italic;}
-.dmg-float.buff{color:#f5dfa0; font-size:.66rem; width:auto; margin-left:-44px; white-space:nowrap; text-shadow:0 2px 4px rgba(0,0,0,.7);}
-@keyframes dmgFloat{0%{opacity:0; transform:translateY(6px) scale(.7);} 18%{opacity:1; transform:translateY(-4px) scale(1.12);} 40%{transform:translateY(-10px) scale(1);} 100%{opacity:0; transform:translateY(-34px) scale(1);}}
-.battle-controls{display:flex; gap:8px; align-items:center; justify-content:space-between;}
+.dmg-float.crit{color:#ffcf5c; font-size:1.85rem; -webkit-text-stroke:2.5px rgba(120,40,0,.9);}
+.dmg-float.miss{color:#e8ddc8; font-size:1.05rem; font-style:italic; -webkit-text-stroke:1.5px rgba(40,30,20,.7);}
+.dmg-float.buff{color:#fff2c0; font-size:.82rem; width:auto; margin-left:-52px; white-space:nowrap; -webkit-text-stroke:1.5px rgba(70,50,10,.85); font-weight:800;}
+@keyframes dmgFloat{0%{opacity:0; transform:translateY(4px) scale(.4);} 12%{opacity:1; transform:translateY(-6px) scale(1.35);} 28%{transform:translateY(-10px) scale(1);} 100%{opacity:0; transform:translateY(-46px) scale(1);}}
+
+/* per-character attack motion (flies from attacker toward target) */
+.attack-fx-icon{
+  position:absolute; z-index:6; font-size:2.4rem; pointer-events:none; top:46%; left:46%;
+  filter:drop-shadow(0 0 10px var(--fxcolor,#fff)) drop-shadow(0 0 3px var(--fxcolor,#fff));
+}
+.attack-fx-icon.from-player{ animation:fxFlyToEnemy .55s cubic-bezier(.25,.6,.35,1) forwards; }
+.attack-fx-icon.from-enemy{ animation:fxFlyToPlayer .55s cubic-bezier(.25,.6,.35,1) forwards; }
+@keyframes fxFlyToEnemy{0%{transform:translate(-32vw,26vh) scale(.5) rotate(-12deg); opacity:0;}18%{opacity:1;}100%{transform:translate(18vw,-24vh) scale(1.25) rotate(14deg); opacity:0;}}
+@keyframes fxFlyToPlayer{0%{transform:translate(32vw,-26vh) scale(.5) rotate(12deg); opacity:0;}18%{opacity:1;}100%{transform:translate(-18vw,24vh) scale(1.25) rotate(-14deg); opacity:0;}}
+
+/* victory banner (top-left) */
+.win-banner{
+  position:absolute; top:14px; left:14px; z-index:12;
+  background:linear-gradient(160deg, var(--gold-hi), var(--gold)); color:#241705;
+  font-weight:900; font-size:1.1rem; padding:10px 18px; border-radius:12px;
+  border:3px solid #fff2cf; box-shadow:0 6px 18px rgba(0,0,0,.5);
+  animation:winBannerIn .5s cubic-bezier(.2,1.4,.4,1) forwards;
+  transform:translateX(-120%) rotate(-4deg);
+}
+@keyframes winBannerIn{0%{transform:translateX(-120%) rotate(-4deg); opacity:0;}60%{transform:translateX(6%) rotate(2deg); opacity:1;}100%{transform:translateX(0) rotate(-2deg); opacity:1;}}
+
+.battle-caption-bar{
+  flex-shrink:0; min-height:52px; padding:8px 16px; background:rgba(0,0,0,.4);
+  display:flex; flex-direction:column; justify-content:center; gap:2px;
+}
+.battle-caption-bar .cap-line{ font-size:.8rem; color:var(--parchment-dim); }
+.battle-caption-bar .cap-line:last-child{ color:var(--parchment); font-weight:700; }
+.battle-controls-bar{
+  flex-shrink:0; display:flex; gap:8px; align-items:center; justify-content:space-between;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px)); background:rgba(0,0,0,.45);
+}
+.battle-result-bar{
+  flex-shrink:0; text-align:center; padding:16px 14px calc(16px + env(safe-area-inset-bottom,0px)); background:rgba(0,0,0,.5);
+}
 .auto-badge{display:flex; align-items:center; gap:6px; font-size:.75rem; color:var(--gold-hi); font-weight:800;}
 .auto-badge .dot{width:8px; height:8px; border-radius:50%; background:var(--ok); animation:blink 1s infinite;}
 @keyframes blink{0%,100%{opacity:1;} 50%{opacity:.3;}}
+
+/* rating match: 5-combatant grid */
+.rating-grid{
+  position:relative; height:100%; padding:14px 10px;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto auto; gap:10px;
+  align-items:center; justify-items:center;
+}
+.rating-slot{ display:flex; flex-direction:column; align-items:center; gap:4px; transition:opacity .3s ease; }
+.rating-slot.ko{ opacity:.3; filter:grayscale(.8); }
+.rating-slot.is-player{ grid-column:1/3; order:99; margin-top:6px; }
+.hp-pill.mini{ padding:3px 8px; gap:4px; }
+.hp-pill.mini .pname{ font-size:.62rem; }
+.hp-pill.mini .bar{ width:44px; height:6px; }
+.rating-slot.is-player .hp-pill{ padding:5px 11px; }
+.rating-slot.is-player .hp-pill .pname{ font-size:.74rem; }
+.rating-slot.is-player .hp-pill .bar{ width:60px; height:8px; }
+.rating-slot .mon-figure svg{ width:min(16vw,64px); height:min(16vw,64px); filter:drop-shadow(0 6px 6px rgba(0,0,0,.4)); }
+.rating-slot.is-player .mon-figure svg{ width:min(22vw,84px); height:min(22vw,84px); }
 
 /* skill shop */
 .skill-row{display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.08);}
@@ -593,6 +642,7 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 <body>
 <div id="app"></div>
 <div id="toast"></div>
+<div id="versionTag">v0.1.3</div>
 
 <script>
 /* =========================================================================
@@ -838,6 +888,59 @@ function rollHuntRarity(){
 function huntCost(attemptNum){
   if(attemptNum <= 1) return 0;
   return Math.min(1000, (attemptNum-1) * 100);
+}
+
+/* ---------------- レーティングマッチ ---------------- */
+function ratingAvailable(){
+  if(account.roster.length===0) return false;
+  if(!account.ratingLastPlayedAt) return true;
+  return (Date.now() - account.ratingLastPlayedAt) >= RATING_COOLDOWN_MS;
+}
+function ratingCooldownText(){
+  if(ratingAvailable()) return null;
+  const remainMs = RATING_COOLDOWN_MS - (Date.now() - account.ratingLastPlayedAt);
+  const mins = Math.max(1, Math.ceil(remainMs/60000));
+  return `つぎの挑戦まで、あと約${mins}分`;
+}
+/* そのキャラが持ちうるスキルの中からランダムに1〜3個持たせる（図鑑には装備スキルまで保存していないための簡易再現） */
+function skillsForRating(speciesId){
+  const sp = STARTERS[speciesId];
+  const pool = (sp && sp.skillPool && sp.skillPool.length) ? [...sp.skillPool] : Object.keys(SKILLS);
+  const count = rnd(1,3);
+  const out = [];
+  for(let i=0;i<count && pool.length;i++){ out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]); }
+  return out;
+}
+function genRatingBot(targetPower){
+  const speciesId = pick(Object.keys(STARTERS));
+  const sp = STARTERS[speciesId];
+  const totalRaw = Math.max(10, targetPower*2);
+  const keys = ['hp','atk','def','spd','eva'];
+  const weights = keys.map(()=> 0.4+Math.random()*1.3);
+  const sumW = weights.reduce((a,b)=>a+b,0);
+  const stats = {};
+  let allocated = 0;
+  keys.forEach((k,i)=>{
+    if(i<keys.length-1){
+      const amt = Math.max(1, Math.round(totalRaw*weights[i]/sumW));
+      stats[k]=amt; allocated+=amt;
+    }else{
+      stats[k]=Math.max(1, totalRaw-allocated);
+    }
+  });
+  return {
+    id:'bot_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6),
+    name:`${sp.name}（Bot）`, speciesId, stats, skills: skillsForRating(speciesId),
+  };
+}
+function genRatingBots(playerPower, count){
+  const bots = [];
+  for(let i=0;i<count;i++){
+    const variance = 0.85 + Math.random()*0.3; // ±15%程度
+    const targetPower = Math.max(10, Math.round(playerPower*variance));
+    bots.push(genRatingBot(targetPower));
+  }
+  return bots;
 }
 
 /* =========================================================================
@@ -1207,6 +1310,7 @@ function render(){
   }
 
   if(battleState){ app.appendChild(renderBattle()); return; }
+  if(ratingBattleState){ app.appendChild(renderRatingBattle()); return; }
 
   if(S.viewMode && S.viewMode!=='game'){
     app.appendChild(renderRoomShell(S.viewMode));
@@ -1899,6 +2003,17 @@ function logMsg(m){ battleState.log.push(m); if(battleState.log.length>40) battl
 
 function hpBarClass(ratio){ return ratio<.3?'low':ratio<.6?'mid':''; }
 
+/* モンスターごとの攻撃モーション（アイコン・色でテーマを表現） */
+const SPECIES_ATTACK_FX = {
+  ponkichi: {icon:'💨', color:'#bfe8f2'},
+  gufagon:  {icon:'🔥', color:'#ff7a45'},
+  gadian:   {icon:'⚔️', color:'#cfd8e3'},
+  yamiguma: {icon:'👊', color:'#a97fe0'},
+  henhei:   {icon:'🔱', color:'#f0c14b'},
+  aitan:    {icon:'💗', color:'#ff8fb3'},
+};
+function getAttackFx(speciesId){ return SPECIES_ATTACK_FX[speciesId] || {icon:'✦', color:'#e8ab45'}; }
+
 function figFxClass(bs, side){
   const fx = bs.fx;
   if(!fx) return '';
@@ -1916,42 +2031,62 @@ function dmgFloatHTML(bs, side){
   if(typeof fx.dmg==='number') return `<div class="dmg-float ${fx.crit?'crit':''}">-${fx.dmg}</div>`;
   return '';
 }
+function attackFxHTML(bs){
+  const fx = bs.fx;
+  if(!fx || fx.buff || fx.missed || typeof fx.dmg!=='number') return '';
+  if(fx.actor!=='player' && fx.actor!=='enemy') return '';
+  const speciesId = fx.actor==='player' ? (bs.player.mon && bs.player.mon.id) : (bs.enemy && bs.enemy.speciesId);
+  const atkfx = getAttackFx(speciesId);
+  const dir = fx.actor==='player' ? 'from-player' : 'from-enemy';
+  return `<div class="attack-fx-icon ${dir}" style="--fxcolor:${atkfx.color};">${atkfx.icon}</div>`;
+}
 
 function renderBattle(){
   const bs = battleState;
-  const wrap = el(`<div class="screen"></div>`);
+  const wrap = el(`<div class="battle-fullscreen"></div>`);
 
   const eRatio = clamp(bs.enemy.hp/bs.enemy.maxHp,0,1);
   const pRatio = clamp(bs.player.hp/bs.player.maxHp,0,1);
 
-  const arena = el(`<div class="arena-wrap card">
-    <div class="crowd-band"></div>
-    <div class="arena-floor" id="arenaFloor">
+  const topBar = el(`<div class="battle-top-bar">
+    <span class="tag ${bs.stage.type==='B'||bs.stage.type==='F'?'heart':'gold'}">${bs.stage.type==='F'?'ラストキングボス':bs.stage.type==='B'?'ボス討伐':bs.stage.type==='hunt'?'ハント':'ミニ討伐'}</span>
+    <div style="display:flex; gap:8px;">
+      <div class="pill">🤍<b>${S.lives}</b></div>
+      <div class="pill">🪙<b>${account.medals}</b></div>
+    </div>
+  </div>`);
+  wrap.appendChild(topBar);
+
+  const arena = el(`<div class="battle-arena-full">
+    <div class="crowd-band" style="height:15%;"></div>
+    <div class="arena-floor-full">
+      ${attackFxHTML(bs)}
       <div class="combatant-spot enemy-spot">
         <div class="hp-pill">
           <span class="pname">${bs.enemy.name}</span>
           <div class="bar"><div class="bar-fill ${hpBarClass(eRatio)}" style="width:${eRatio*100}%"></div></div>
           <span class="pnum">${Math.max(0,bs.enemy.hp)}</span>
         </div>
-        <div class="mon-figure ${figFxClass(bs,'enemy')}">${monsterSVG(bs.enemy,78)}${dmgFloatHTML(bs,'enemy')}</div>
+        <div class="mon-figure ${figFxClass(bs,'enemy')}">${monsterSVG(bs.enemy,86)}${dmgFloatHTML(bs,'enemy')}</div>
       </div>
       <div class="combatant-spot player-spot">
-        <div class="mon-figure ${figFxClass(bs,'player')}">${monsterSVG(bs.player.mon,98)}${dmgFloatHTML(bs,'player')}</div>
         <div class="hp-pill">
           <span class="pname">${bs.player.name}</span>
           <div class="bar"><div class="bar-fill ${hpBarClass(pRatio)}" style="width:${pRatio*100}%"></div></div>
           <span class="pnum">${Math.max(0,bs.player.hp)}</span>
         </div>
+        <div class="mon-figure ${figFxClass(bs,'player')}">${monsterSVG(bs.player.mon,108)}${dmgFloatHTML(bs,'player')}</div>
       </div>
+      ${bs.over && bs.win ? `<div class="win-banner">${(bs.player.mon&&bs.player.mon.name)||''} WIN!!!</div>` : ''}
     </div>
   </div>`);
   wrap.appendChild(arena);
 
-  const log = el(`<div class="battle-log" id="battleLog">${bs.log.map(l=>`<div class="entry">${l}</div>`).join('')}</div>`);
-  wrap.appendChild(log);
+  const caption = el(`<div class="battle-caption-bar">${(bs.log.slice(-2)).map(l=>`<div class="cap-line">${l}</div>`).join('')}</div>`);
+  wrap.appendChild(caption);
 
   if(!bs.over){
-    const controls = el(`<div class="battle-controls">
+    const controls = el(`<div class="battle-controls-bar">
       <div class="auto-badge"><span class="dot"></span>自動でたたかっています…</div>
       <div style="display:flex; gap:8px;">
         <button class="btn secondary" id="speedBtn" style="padding:8px 12px;">${bs.speed===2?'⏩ 2倍速':'▶ 通常速度'}</button>
@@ -1961,19 +2096,23 @@ function renderBattle(){
     wrap.appendChild(controls);
     controls.querySelector('#speedBtn').onclick = ()=>{ bs.speed = bs.speed===2?1:2; render(); };
     controls.querySelector('#skipBtn').onclick = ()=> skipToEnd();
-  }else{
+  }else if(!bs.win){
     const isHunt = bs.stage.type==='hunt';
-    const resultMsg = bs.win
-      ? (bs.stage.type==='F' ? 'コロシアムに、再び光が戻った。' : isHunt ? '暴走したモンスターを鎮めた！' : 'クエストを達成した！')
-      : (isHunt ? '暴走したモンスターに敗れてしまった…' : (S.checkpoint===S.stageIndex ? '同じ育成ステージからやり直そう。' : '手前の育成ステージまで戻される…'));
-    const continueLabel = isHunt ? 'ハントの広場へ' : (bs.win ? (bs.stage.type==='F'?'エンディングへ':'先へ進む') : '仕切り直す');
-    const result = el(`<div class="card center-text" style="padding:22px 16px;">
-      <h2 style="color:${bs.win?'var(--ok)':'var(--crimson)'};">${bs.win?'勝利！':'敗北…'}</h2>
-      <p class="small dim" style="margin-top:8px;">${resultMsg}</p>
-      <button class="btn block" id="battleContinue" style="margin-top:16px;">${continueLabel}</button>
+    const resultMsg = isHunt ? '暴走したモンスターに敗れてしまった…' : (S.checkpoint===S.stageIndex ? '同じ育成ステージからやり直そう。' : '手前の育成ステージまで戻される…');
+    const continueLabel = isHunt ? 'ハントの広場へ' : '仕切り直す';
+    const result = el(`<div class="battle-result-bar">
+      <h2 style="color:var(--crimson); margin:0;">敗北…</h2>
+      <p class="small dim" style="margin-top:6px;">${resultMsg}</p>
+      <button class="btn block" id="battleContinue" style="margin-top:12px;">${continueLabel}</button>
     </div>`);
     wrap.appendChild(result);
     wrap.querySelector('#battleContinue').onclick = ()=> finishBattle();
+  }else{
+    if(!bs.winBannerScheduled){
+      bs.winBannerScheduled = true;
+      sfxWin();
+      setTimeout(()=>{ if(battleState===bs) finishBattle(); }, 2200);
+    }
   }
   return wrap;
 }
@@ -2297,6 +2436,304 @@ function finishBattle(){
   render();
 }
 
+/* =========================================================================
+   レーティングマッチ：5体（Bot4体＋自分1体）が入り乱れる簡易バトルロイヤル
+   ========================================================================= */
+let ratingBattleState = null;
+
+function buildRatingCombatant(entry, isPlayer){
+  const s = entry.stats;
+  return {
+    id: entry.id, name: entry.name,
+    mon: STARTERS[entry.speciesId] || {shape:'kaiju', colorA:'#888', colorB:'#444'},
+    speciesId: entry.speciesId,
+    hp: s.hp, maxHp: s.hp, atk: s.atk, def: s.def, spd: s.spd, eva: s.eva, acc:0,
+    status:{poison:0, confuse:0}, cds:{}, usedBuffs:[],
+    skills: isPlayer ? skillsForRating(entry.speciesId) : entry.skills,
+    isPlayer, alive:true,
+  };
+}
+function startRatingBattle(myEntry, bots){
+  const combatants = [ buildRatingCombatant(myEntry, true) ];
+  bots.forEach(b=> combatants.push(buildRatingCombatant(b, false)));
+  ratingBattleState = {
+    combatants, log:['レーティングマッチ開始！ 5体が入り乱れる！'],
+    over:false, result:null, eliminationOrder:[],
+    fx:null, speed:1, timer:null, skipped:false, winBannerScheduled:false,
+  };
+  render();
+  ratingBattleState.timer = setTimeout(ratingAutoLoop, 1000);
+}
+function aliveCombatants(bs){ return bs.combatants.filter(c=>c.alive); }
+function logRatingMsg(bs, m){ bs.log.push(m); if(bs.log.length>60) bs.log.shift(); }
+function killCombatant(bs, c){
+  if(!c.alive) return;
+  c.alive=false; c.hp=0;
+  bs.eliminationOrder.push(c.id);
+  logRatingMsg(bs, `${c.name}は倒れた！`);
+}
+function ratingCheckConfuse(bs, actor){
+  if(!actor.status || actor.status.confuse<=0) return null;
+  actor.status.confuse--;
+  if(Math.random()<0.4){
+    const dmg = Math.max(1, Math.round(actor.atk*0.5 - actor.def*0.3));
+    actor.hp -= dmg;
+    logRatingMsg(bs, `${actor.name}は混乱している… 自分を攻撃してしまった！ ${dmg}のダメージ！`);
+    if(actor.hp<=0) killCombatant(bs, actor);
+    return {actor:actor.id, target:actor.id, dmg, confused:true};
+  }
+  return null;
+}
+function ratingDecideAction(bs, actor){
+  const others = aliveCombatants(bs).filter(c=>c.id!==actor.id);
+  if(others.length===0) return null;
+  const target = pick(others);
+  const usable = (actor.skills||[]).filter(key=>{
+    const sk = SKILLS[key];
+    if(!sk) return false;
+    const used = actor.usedBuffs.includes(key);
+    const cdLeft = actor.cds[key]||0;
+    if(cdLeft>0) return false;
+    if(!REPEATABLE_SKILL_KINDS.includes(sk.kind) && used) return false;
+    return true;
+  });
+  if(usable.length && Math.random()<0.4){ return {type:'skill', key:pick(usable), target}; }
+  return {type:'attack', target};
+}
+function ratingApplySkill(bs, actor, target, sk, key){
+  if(sk.kind==='buff'){
+    actor[sk.stat] = Math.round(actor[sk.stat]*sk.mult);
+    if(sk.sideStat) actor[sk.sideStat] = Math.round(actor[sk.sideStat]*sk.sideMult);
+    actor.usedBuffs.push(key);
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使った！`);
+    return {actor:actor.id, target:actor.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='debuff'){
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    if(sk.stat==='acc'){ target.acc=(target.acc||0)-0.5; } else { target[sk.stat]=Math.max(1,Math.round(target[sk.stat]*sk.mult)); }
+    actor.usedBuffs.push(key);
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使った！ ${target.name}は弱体化した！`);
+    return {actor:actor.id, target:target.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='cond_dmg'){
+    actor.cds[key]=2;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const ratio = target.hp/target.maxHp;
+    const met = sk.cond==='low' ? ratio<=0.35 : ratio>=0.6;
+    const dmg = met ? Math.max(1,Math.round(actor.atk*sk.mult - target.def*0.35)) : basicDamage(Math.round(actor.atk*.6), target.def);
+    target.hp -= dmg;
+    logRatingMsg(bs, met?`${sk.name}が炸裂！ ${target.name}に${dmg}の大ダメージ！`:`${sk.name}は不発…${dmg}のダメージ。`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg, crit:met};
+  }
+  if(sk.kind==='status'){
+    actor.cds[key]=3;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    target.status[sk.status] = (target.status[sk.status]||0)+3;
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使った！ ${target.name}は${sk.status==='poison'?'毒':'混乱'}状態になった！`);
+    return {actor:actor.id, target:target.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='dmg_debuff'){
+    actor.cds[key]=3;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const dmg = Math.max(1, Math.round(actor.atk*sk.dmgMult - target.def*0.3));
+    target.hp -= dmg;
+    target[sk.stat] = Math.max(1, Math.round(target[sk.stat]*sk.mult));
+    logRatingMsg(bs, `${sk.name}が命中！ ${target.name}に${dmg}のダメージ！`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg, crit:true};
+  }
+  if(sk.kind==='roulette'){
+    actor.cds[key]=4;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const outcome = pick(AI_ROULETTE);
+    outcome.apply(target);
+    logRatingMsg(bs, `${actor.name}は${sk.name}を発動！「${outcome.label}」！`);
+    logRatingMsg(bs, outcome.msg(target.name));
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, buff:true, skillName:`${sk.name}：${outcome.label}`};
+  }
+  return {actor:actor.id, target:null};
+}
+function ratingResolveAction(bs, actor, action){
+  if(!actor.alive) return {actor:actor.id, target:null};
+  const confuseResult = ratingCheckConfuse(bs, actor);
+  if(confuseResult) return confuseResult;
+  let target = (action && action.target && action.target.alive) ? action.target : pick(aliveCombatants(bs).filter(c=>c.id!==actor.id));
+  if(!target) return {actor:actor.id, target:null};
+  if(!action || action.type==='attack'){
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}のこうげきは${target.name}に外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const dmg = basicDamage(actor.atk, target.def);
+    target.hp -= dmg;
+    logRatingMsg(bs, `${actor.name}のこうげき！ ${target.name}に${dmg}のダメージ！`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg};
+  }
+  const sk = SKILLS[action.key];
+  if(!sk) return {actor:actor.id, target:target.id};
+  return ratingApplySkill(bs, actor, target, sk, action.key);
+}
+function ratingTickCooldowns(bs){
+  bs.combatants.forEach(c=>{
+    if(!c.alive) return;
+    Object.keys(c.cds).forEach(k=>{ if(c.cds[k]>0) c.cds[k]--; });
+    if(c.status && c.status.poison>0){
+      const dmg = Math.max(1, Math.round(c.maxHp*0.07));
+      c.hp -= dmg; c.status.poison--;
+      logRatingMsg(bs, `${c.name}は毒のダメージを受けた！ ${dmg}のダメージ！`);
+      if(c.hp<=0) killCombatant(bs, c);
+    }
+  });
+}
+function ratingCheckOver(bs){
+  const alive = aliveCombatants(bs);
+  if(alive.length<=1){
+    bs.over = true;
+    const me = bs.combatants.find(c=>c.isPlayer);
+    bs.result = (alive[0] && alive[0].isPlayer) ? 'win' : 'lose';
+    bs.survivalRank = bs.eliminationOrder.includes(me.id) ? (5 - bs.eliminationOrder.indexOf(me.id)) : 1;
+    return true;
+  }
+  return false;
+}
+async function ratingPlayRound(bs){
+  const order = aliveCombatants(bs).sort((a,b)=> b.spd-a.spd);
+  const beat = bs.speed===2 ? 260 : 520;
+  for(const actor of order){
+    if(bs.skipped || ratingBattleState!==bs) return;
+    if(!actor.alive) continue;
+    if(aliveCombatants(bs).length<=1) break;
+    const action = ratingDecideAction(bs, actor);
+    const result = ratingResolveAction(bs, actor, action);
+    bs.fx = result;
+    render();
+    await wait(beat);
+    if(bs.skipped || ratingBattleState!==bs) return;
+  }
+  bs.fx = null;
+  ratingTickCooldowns(bs);
+  ratingCheckOver(bs);
+  render();
+}
+async function ratingAutoLoop(){
+  const bs = ratingBattleState;
+  if(!bs || bs.over || bs.skipped) return;
+  await ratingPlayRound(bs);
+  if(ratingBattleState===bs && !bs.over && !bs.skipped){
+    bs.timer = setTimeout(()=>ratingAutoLoop(), bs.speed===2?200:420);
+  }
+}
+function ratingSkipToEnd(){
+  const bs = ratingBattleState;
+  if(!bs || bs.over) return;
+  bs.skipped = true;
+  clearTimeout(bs.timer);
+  bs.fx = null;
+  let guard=0;
+  while(!bs.over && guard<500){
+    const order = aliveCombatants(bs).sort((a,b)=>b.spd-a.spd);
+    for(const actor of order){
+      if(!actor.alive) continue;
+      if(aliveCombatants(bs).length<=1) break;
+      const action = ratingDecideAction(bs, actor);
+      ratingResolveAction(bs, actor, action);
+    }
+    ratingTickCooldowns(bs);
+    if(ratingCheckOver(bs)) break;
+    guard++;
+  }
+  render();
+}
+function finishRatingBattle(){
+  const bs = ratingBattleState;
+  clearTimeout(bs.timer);
+  if(bs.result==='win'){
+    account.ratingWins++;
+    account.medals += 40;
+    toast('レーティングマッチ勝利！ 🪙+40');
+  }else{
+    account.ratingLosses++;
+    toast(`レーティングマッチ終了…生存${bs.survivalRank}位`);
+  }
+  saveAccount();
+  ratingBattleState = null;
+  S.viewMode = 'rating';
+  saveGame();
+  render();
+}
+function renderRatingBattle(){
+  const bs = ratingBattleState;
+  const wrap = el(`<div class="battle-fullscreen rating-mode"></div>`);
+  const topBar = el(`<div class="battle-top-bar">
+    <span class="tag heart">🥊 レーティングマッチ</span>
+    <span class="tiny dim">残り${aliveCombatants(bs).length}体</span>
+  </div>`);
+  wrap.appendChild(topBar);
+
+  const arena = el(`<div class="battle-arena-full"><div class="rating-grid"></div></div>`);
+  const grid = arena.querySelector('.rating-grid');
+  bs.combatants.forEach(c=>{
+    const ratio = clamp(c.hp/c.maxHp, 0, 1);
+    const fx = bs.fx;
+    const isActorFx = fx && fx.actor===c.id && !fx.buff;
+    const isTargetFx = fx && fx.target===c.id;
+    const figClass = [
+      isActorFx ? 'lunge-right' : '',
+      (isTargetFx && fx.buff) ? (fx.actor===fx.target?'buff-glow':'debuff-glow') : '',
+      (isTargetFx && !fx.buff) ? 'hit-shake' : '',
+    ].join(' ');
+    let dmgHTML = '';
+    if(isTargetFx){
+      if(fx.buff) dmgHTML = `<div class="dmg-float buff">${fx.skillName||''}</div>`;
+      else if(fx.missed) dmgHTML = `<div class="dmg-float miss">MISS</div>`;
+      else if(typeof fx.dmg==='number') dmgHTML = `<div class="dmg-float ${fx.crit?'crit':''}">-${fx.dmg}</div>`;
+    }
+    grid.appendChild(el(`<div class="rating-slot ${c.alive?'':'ko'} ${c.isPlayer?'is-player':''}">
+      <div class="hp-pill mini">
+        <span class="pname">${c.isPlayer?'★ ':''}${c.name}</span>
+        <div class="bar"><div class="bar-fill ${hpBarClass(ratio)}" style="width:${ratio*100}%"></div></div>
+      </div>
+      <div class="mon-figure ${figClass}">${monsterSVG(c.mon,c.isPlayer?70:54)}${dmgHTML}</div>
+    </div>`));
+  });
+  if(bs.over && bs.result==='win'){
+    const meC = bs.combatants.find(c=>c.isPlayer);
+    grid.appendChild(el(`<div class="win-banner">${meC.mon.name} WIN!!!</div>`));
+  }
+  wrap.appendChild(arena);
+
+  const caption = el(`<div class="battle-caption-bar">${bs.log.slice(-2).map(l=>`<div class="cap-line">${l}</div>`).join('')}</div>`);
+  wrap.appendChild(caption);
+
+  if(!bs.over){
+    const controls = el(`<div class="battle-controls-bar">
+      <div class="auto-badge"><span class="dot"></span>5体入り乱れ中…</div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn secondary" id="rSpeedBtn" style="padding:8px 12px;">${bs.speed===2?'⏩ 2倍速':'▶ 通常速度'}</button>
+        <button class="btn secondary" id="rSkipBtn" style="padding:8px 12px;">結果までスキップ</button>
+      </div>
+    </div>`);
+    wrap.appendChild(controls);
+    controls.querySelector('#rSpeedBtn').onclick = ()=>{ bs.speed = bs.speed===2?1:2; render(); };
+    controls.querySelector('#rSkipBtn').onclick = ()=> ratingSkipToEnd();
+  }else if(bs.result==='win'){
+    if(!bs.winBannerScheduled){
+      bs.winBannerScheduled = true;
+      sfxWin();
+      setTimeout(()=>{ if(ratingBattleState===bs) finishRatingBattle(); }, 2200);
+    }
+  }else{
+    const result = el(`<div class="battle-result-bar">
+      <h2 style="color:var(--crimson); margin:0;">生存${bs.survivalRank}位</h2>
+      <p class="small dim" style="margin-top:6px;">またすぐに挑める強さを目指そう。</p>
+      <button class="btn block" id="rContinueBtn" style="margin-top:12px;">レーティング画面へ</button>
+    </div>`);
+    wrap.appendChild(result);
+    wrap.querySelector('#rContinueBtn').onclick = ()=> finishRatingBattle();
+  }
+  return wrap;
+}
+
 /* ---------------- license card (shown once, after success or game over) ---------------- */
 function renderLicenseCard(mode){
   const bstats = blessedStats(S.stats);
@@ -2370,9 +2807,10 @@ let rosterSort = 'total';
 let huntSquadSelection = [];
 
 function renderRoomShell(activeTab){
-  const key = ROOM_TABS.some(t=>t.key===activeTab) ? activeTab : 'room';
+  const validKeys = ROOM_TABS.map(t=>t.key).concat(['rating']);
+  const key = validKeys.includes(activeTab) ? activeTab : 'room';
   const wrap = el(`<div class="screen" style="padding-bottom:96px;"></div>`);
-  const contentMap = {roster:renderRosterTab, hunt:renderHuntTab, friend:renderFriendTab, transfer:renderTransferTab, room:renderRoomTab};
+  const contentMap = {roster:renderRosterTab, hunt:renderHuntTab, friend:renderFriendTab, transfer:renderTransferTab, room:renderRoomTab, rating:renderRatingTab};
   wrap.appendChild(contentMap[key]());
   const tabBar = el(`<div class="tab-bar"></div>`);
   ROOM_TABS.forEach(t=>{
@@ -2402,15 +2840,22 @@ function renderRoomTab(){
   const view = resolveRoomView(hasActiveRun);
   const displaySpecies = view ? (view.isLive ? starter() : STARTERS[view.entry.speciesId]) : null;
   const displayName = view ? (view.isLive ? (S.monsterName || starter().name) : view.entry.name) : '';
+  const ratingReady = ratingAvailable();
 
-  wrap.appendChild(el(`<div class="room-scene">
+  const scene = el(`<div class="room-scene">
     <div class="room-bg">
       <div class="room-window"><div class="room-cloud"></div><div class="room-cloud c2"></div></div>
       <div class="room-rug"></div>
       ${displaySpecies ? `<div class="room-pet">${monsterSVG(displaySpecies,110)}</div>` : ''}
+      <button class="room-rating-icon" id="ratingIconBtn" title="レーティングマッチ">🥊${ratingReady?'<span class="badge-bang">!</span>':''}</button>
     </div>
     <div class="room-caption">${displaySpecies ? `${displayName}がくつろいでいる。` : 'まだ迎えたモンスターがいない。'}</div>
-  </div>`));
+  </div>`);
+  wrap.appendChild(scene);
+  scene.querySelector('#ratingIconBtn').onclick = ()=>{ S.viewMode='rating'; saveGame(); render(); };
+
+  wrap.appendChild(el(`<button class="btn secondary block" id="roomNoticeBtn"><span class="tiny">📢 お知らせ</span></button>`));
+  wrap.querySelector('#roomNoticeBtn').onclick = ()=> showNoticeModal();
 
   if(hasActiveRun || account.roster.length>0){
     const pickerWrap = el(`<div class="room-picker"></div>`);
@@ -2609,6 +3054,80 @@ function renderFriendTab(){
   return wrap;
 }
 
+/* ---- レーティングマッチタブ ---- */
+let ratingSelectedId = null;
+let ratingPreview = null;
+function renderRatingTab(){
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  const header = el(`<div style="display:flex; align-items:center; gap:8px;">
+    <button class="icon-btn" id="ratingBackBtn">←</button>
+    <h2 style="color:var(--gold-hi); font-size:1.15rem; margin:0;">🥊 レーティングマッチ</h2>
+  </div>`);
+  wrap.appendChild(header);
+  header.querySelector('#ratingBackBtn').onclick = ()=>{ S.viewMode='room'; saveGame(); render(); };
+
+  if(account.roster.length===0){
+    wrap.appendChild(el(`<div class="card center-text"><p class="small dim">まだ育成を終えたモンスターがいません。</p></div>`));
+    return wrap;
+  }
+
+  const sortedByPower = [...account.roster].sort((a,b)=> computePower(b.stats)-computePower(a.stats));
+  const myEntry = account.roster.find(m=>m.id===ratingSelectedId) || sortedByPower[0];
+  const myPower = computePower(myEntry.stats);
+
+  const pickCard = el(`<div class="card">
+    <p class="small" style="margin-bottom:8px;">出場モンスター（初期選択は戦闘力が最も高い子）</p>
+    <div class="room-picker" id="ratingPickRow"></div>
+  </div>`);
+  wrap.appendChild(pickCard);
+  const pickRow = pickCard.querySelector('#ratingPickRow');
+  account.roster.forEach(m=>{
+    const sp = STARTERS[m.speciesId];
+    const active = m.id===myEntry.id;
+    const btn = el(`<button class="room-picker-item ${active?'active':''}" title="${m.name}">${monsterSVG(sp||{shape:'kaiju',colorA:'#888',colorB:'#444'},38)}</button>`);
+    btn.onclick = ()=>{ ratingSelectedId=m.id; ratingPreview=null; render(); };
+    pickRow.appendChild(btn);
+  });
+
+  wrap.appendChild(el(`<div class="card center-text">
+    <div style="font-weight:900; color:var(--gold-hi);">${myEntry.name}</div>
+    <div class="tiny dim">戦闘力 ${myPower}（${getPowerRank(myPower).key}）</div>
+  </div>`));
+
+  if(!ratingAvailable()){
+    wrap.appendChild(el(`<div class="card center-text"><p class="small dim">${ratingCooldownText()}</p></div>`));
+    wrap.appendChild(el(`<div class="card"><p class="tiny dim">戦績：${account.ratingWins}勝 ${account.ratingLosses}敗</p></div>`));
+    return wrap;
+  }
+
+  if(!ratingPreview || ratingPreview.myId!==myEntry.id){
+    ratingPreview = { myId: myEntry.id, bots: genRatingBots(myPower, 4) };
+  }
+
+  const oppCard = el(`<div class="card">
+    <p class="small" style="margin-bottom:10px;">対戦相手（戦闘力の近いBot・4体、5体入り乱れるバトル）</p>
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      ${ratingPreview.bots.map(b=>`<div class="skill-row"><div class="mon-avatar-wrap" style="padding:0;">${monsterSVG(STARTERS[b.speciesId],36)}</div><div class="info"><div class="name">${b.name}</div><div class="desc">戦闘力 ${computePower(b.stats)}</div></div></div>`).join('')}
+    </div>
+    <p class="tiny dim" style="margin-top:8px;">※Botの戦闘力はあくまで近いだけで、ステータス配分やスキルには偏りがあります。</p>
+  </div>`);
+  wrap.appendChild(oppCard);
+
+  const goBtn = el(`<button class="btn block" id="ratingGoBtn" style="padding:16px;">バトル開始</button>`);
+  wrap.appendChild(goBtn);
+  goBtn.onclick = ()=>{
+    account.ratingLastPlayedAt = Date.now();
+    saveAccount();
+    const bots = ratingPreview.bots;
+    ratingPreview = null;
+    startRatingBattle(myEntry, bots);
+  };
+
+  wrap.appendChild(el(`<div class="card"><p class="tiny dim">戦績：${account.ratingWins}勝 ${account.ratingLosses}敗</p></div>`));
+
+  return wrap;
+}
+
 /* ---- 引き継ぎタブ ---- */
 function renderTransferTab(){
   const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
@@ -2666,10 +3185,52 @@ function renderTransferTab(){
 }
 
 /* =========================================================================
+   ローディング画面（起動時のみ）
+   ========================================================================= */
+function showLoadingScreen(durationMs){
+  const overlay = document.createElement('div');
+  overlay.id = 'loadingOverlay';
+  const tips = ['育成データを読み込み中…','コロシアムの灯りをともしています…','モンスターたちを起こしています…','闘技場の砂をならしています…'];
+  overlay.innerHTML = `<div class="loading-wrap">
+    <div class="loading-emblem">🏛️</div>
+    <div class="loading-title">コロシアムモンスターズ</div>
+    <div class="loading-bar-track"><div class="loading-bar-fill" id="loadingBarFill"></div></div>
+    <div class="loading-tip" id="loadingTip">${tips[0]}</div>
+  </div>`;
+  document.body.appendChild(overlay);
+  const fill = overlay.querySelector('#loadingBarFill');
+  const tipEl = overlay.querySelector('#loadingTip');
+  let tipI = 0;
+  const tipTimer = setInterval(()=>{ tipI=(tipI+1)%tips.length; if(tipEl) tipEl.textContent = tips[tipI]; }, 1400);
+  const start = Date.now();
+  function raf(){
+    if(!document.getElementById('loadingOverlay')) return;
+    const elapsed = Date.now()-start;
+    const pct = Math.min(100, (elapsed/durationMs)*100);
+    if(fill) fill.style.width = pct+'%';
+    if(elapsed<durationMs){ requestAnimationFrame(raf); }
+  }
+  requestAnimationFrame(raf);
+  return { overlay, tipTimer };
+}
+function hideLoadingScreen(handle){
+  clearInterval(handle.tipTimer);
+  handle.overlay.style.transition = 'opacity .4s ease';
+  handle.overlay.style.opacity = '0';
+  setTimeout(()=> handle.overlay.remove(), 420);
+}
+
+/* =========================================================================
    boot
    ========================================================================= */
 (async function boot(){
+  const durationMs = rnd(4000,8000);
+  const loadingHandle = showLoadingScreen(durationMs);
+  const startTime = Date.now();
   await loadGame();
+  const elapsed = Date.now()-startTime;
+  if(elapsed < durationMs){ await new Promise(res=>setTimeout(res, durationMs-elapsed)); }
+  hideLoadingScreen(loadingHandle);
   render();
 })();
 </script>
