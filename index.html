@@ -363,8 +363,8 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
   display:flex; align-items:center; justify-content:center;
 }
 .loading-wrap{ display:flex; flex-direction:column; align-items:center; gap:14px; padding:24px; }
-.loading-emblem{ font-size:3rem; animation:loadingSpin 2.4s linear infinite; }
-@keyframes loadingSpin{ 0%{transform:rotate(0);} 100%{transform:rotate(360deg);} }
+.loading-emblem{ font-size:3rem; animation:loadingPulse 1.8s ease-in-out infinite; }
+@keyframes loadingPulse{ 0%,100%{transform:scale(1); opacity:.85;} 50%{transform:scale(1.08); opacity:1;} }
 .loading-title{ font-family:'Shippori Mincho B1', serif; font-weight:800; color:var(--gold-hi); font-size:1.15rem; letter-spacing:.06em; }
 .loading-bar-track{ width:220px; height:8px; border-radius:6px; background:rgba(255,255,255,.12); overflow:hidden; }
 .loading-bar-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--gold), var(--gold-hi)); transition:width .2s linear; }
@@ -592,23 +592,51 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 .auto-badge .dot{width:8px; height:8px; border-radius:50%; background:var(--ok); animation:blink 1s infinite;}
 @keyframes blink{0%,100%{opacity:1;} 50%{opacity:.3;}}
 
-/* rating match: 5-combatant grid */
-.rating-grid{
-  position:relative; height:100%; padding:14px 10px;
-  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto auto auto; gap:10px;
-  align-items:center; justify-items:center;
+/* rating match: horizontal speed-ordered row (Bot/Bot/Bot/You/Bot layout) */
+.rating-row{
+  position:relative; height:100%; padding:10px 4px;
+  display:flex; flex-direction:row; align-items:center; justify-content:space-between;
 }
-.rating-slot{ display:flex; flex-direction:column; align-items:center; gap:4px; transition:opacity .3s ease; }
+.rating-slot{ display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; min-width:0; transition:opacity .3s ease; }
 .rating-slot.ko{ opacity:.3; filter:grayscale(.8); }
-.rating-slot.is-player{ grid-column:1/3; order:99; margin-top:6px; }
-.hp-pill.mini{ padding:3px 8px; gap:4px; }
-.hp-pill.mini .pname{ font-size:.62rem; }
-.hp-pill.mini .bar{ width:44px; height:6px; }
-.rating-slot.is-player .hp-pill{ padding:5px 11px; }
-.rating-slot.is-player .hp-pill .pname{ font-size:.74rem; }
-.rating-slot.is-player .hp-pill .bar{ width:60px; height:8px; }
-.rating-slot .mon-figure svg{ width:min(16vw,64px); height:min(16vw,64px); filter:drop-shadow(0 6px 6px rgba(0,0,0,.4)); }
-.rating-slot.is-player .mon-figure svg{ width:min(22vw,84px); height:min(22vw,84px); }
+.rating-slot.is-player{ transform:scale(1.08); z-index:3; }
+.hp-pill.mini{ padding:3px 7px; gap:3px; }
+.hp-pill.mini .pname{ font-size:.58rem; max-width:13vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hp-pill.mini .bar{ width:11vw; max-width:44px; height:6px; }
+.hp-pill.mini .pnum{ font-size:.58rem; min-width:14px; }
+.rating-slot.is-player .hp-pill{ padding:4px 9px; }
+.rating-slot.is-player .hp-pill .pname{ font-size:.68rem; }
+.rating-slot.is-player .hp-pill .bar{ width:13vw; max-width:52px; height:7px; }
+.rating-slot .mon-figure svg{ width:min(15vw,58px); height:min(15vw,58px); filter:drop-shadow(0 6px 6px rgba(0,0,0,.4)); }
+.rating-slot.is-player .mon-figure svg{ width:min(19vw,74px); height:min(19vw,74px); }
+.mon-figure.rating-attack-pose{ animation:ratingAttackPose .5s cubic-bezier(.34,1.4,.64,1); }
+@keyframes ratingAttackPose{ 0%{transform:translateY(0) scale(1);} 35%{transform:translateY(-10px) scale(1.12);} 100%{transform:translateY(0) scale(1);} }
+.rating-fx-icon{
+  position:absolute; top:38%; left:var(--from); margin-left:-14px; z-index:8; font-size:1.7rem; pointer-events:none;
+  filter:drop-shadow(0 0 8px var(--fxcolor,#fff)) drop-shadow(0 0 3px var(--fxcolor,#fff));
+  animation:ratingFxFly .5s ease-out forwards;
+}
+@keyframes ratingFxFly{ 0%{ left:var(--from); opacity:0; transform:scale(.6);} 15%{opacity:1;} 100%{ left:var(--to); opacity:0; transform:scale(1.3);} }
+
+/* rating match: results card (post-battle ranking display) */
+.rating-result-card{
+  background:linear-gradient(160deg, var(--stone-hi), var(--stone-mid));
+  border:2px solid rgba(232,171,69,.4); border-radius:16px; padding:14px 10px;
+  box-shadow:var(--shadow);
+}
+.rrc-title{ text-align:center; font-weight:900; color:var(--gold-hi); font-size:.9rem; margin-bottom:12px; }
+.rrc-row{ display:flex; justify-content:space-between; align-items:flex-end; gap:4px; }
+.rrc-slot{ flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; position:relative; }
+.rrc-slot.is-player .rrc-icon{ box-shadow:0 0 0 2px var(--gold); border-radius:50%; }
+.rrc-crown{ position:absolute; top:-22px; font-size:1.3rem; animation:currentPulse 1.4s ease-in-out infinite; }
+.rrc-rankbadge{
+  font-size:.62rem; font-weight:900; color:#fff; background:rgba(0,0,0,.35);
+  padding:2px 7px; border-radius:100px; margin-bottom:2px;
+}
+.rrc-rankbadge.rank1{ background:linear-gradient(160deg,var(--gold-hi),var(--gold)); color:#241705; }
+.rrc-icon svg{ width:38px; height:38px; }
+.rrc-name{ font-size:.6rem; font-weight:800; color:var(--parchment); max-width:16vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rrc-power{ font-size:.62rem; color:var(--gold-hi); font-weight:800; }
 
 /* skill shop */
 .skill-row{display:flex; align-items:center; gap:12px; padding:12px; border-radius:14px; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.08);}
@@ -642,7 +670,7 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 <body>
 <div id="app"></div>
 <div id="toast"></div>
-<div id="versionTag">v0.1.3</div>
+<div id="versionTag">v0.2.0</div>
 
 <script>
 /* =========================================================================
@@ -716,6 +744,17 @@ const SKILLS = {
   dokudoku:     {name:'ドクドク', desc:'相手を毒状態にする。数ターン継続でダメージを受ける', cost:20, kind:'status', status:'poison'},
   nightmareball:{name:'ナイトメーア', desc:'ヤミグマ専用。闇の魔法玉で攻撃し、相手の素早さを極限まで下げる', cost:20, kind:'dmg_debuff', stat:'spd', mult:.25, dmgMult:.7},
   ainoopushon: {name:'愛のオプション', desc:'アイたん専用。愛のルーレットを回し、様々な弱体効果のいずれかを相手に与える', cost:30, kind:'roulette'},
+  poyapawa:    {name:'ポヤパワー', desc:'相手の魔力を下げる', cost:10, kind:'debuff_magic', mult:.7},
+  mahopitan:   {name:'マホピタン', desc:'自分の魔力を1.5倍にする', cost:10, kind:'buff_magic', mult:1.5},
+  aisupawa:    {name:'アイスーパーワ', desc:'魔力を使った氷の魔法で攻撃する', cost:20, kind:'magic_dmg', mult:1},
+  gigaaisupawa:{name:'ギガアイスーパーワ', desc:'巨大な氷の魔法で攻撃する（魔力ダメージ1.5倍）。アイスーパーワ習得が条件', cost:20, kind:'magic_dmg', mult:1.5, requires:'aisupawa'},
+  toranpupuran:{name:'トランププラン', desc:'スペルド専用。トランプを1枚引き、出た柄でランダムな効果が発動する', cost:40, kind:'card_draw'},
+  purunpurun:  {name:'プルンプルン', desc:'プルン専用。プルプル状態になり、通常攻撃を跳ね返す（魔法・スキルダメージは跳ね返せない）', cost:20, kind:'reflect_buff', turns:3},
+  fuwaattack:  {name:'フワアタック', desc:'フワリン専用。相手に小ダメージを与え、自分の攻撃力を3倍にする', cost:15, kind:'dmg_selfbuff', stat:'atk', mult:3, dmgMult:.5},
+  fuwaloop:    {name:'フワループ', desc:'フワリン専用。相手に小ダメージを与え、自分の防御力を2.5倍にする', cost:15, kind:'dmg_selfbuff', stat:'def', mult:2.5, dmgMult:.5},
+  fuwatoppa:   {name:'フワトッパ', desc:'フワリン専用。次の自分の行動を2回休み、その後この試合だけ自分のステータスがすべて5倍になる', cost:30, kind:'charge_buff', chargeTurns:2, mult:5},
+  tenshinohikari:{name:'テンシノヒカリ', desc:'交換所で解禁。どんな状況でも相手に大ダメージを与え、毒状態・混乱状態にする', cost:10, kind:'universal_dmg_status'},
+  akunodaraku: {name:'アクノダラク', desc:'交換所で解禁。相手のHPが高いときによく発動し、大ダメージを与える。代わりに自分の全ステータスが少し下がる', cost:10, kind:'universal_dmg_selfdown'},
 };
 
 /* アイたん専用スキル「愛のオプション」のルーレット候補
@@ -845,6 +884,48 @@ const STARTERS = {
     skillPool:['pawasutairu','disufensuraa','bureruu','funyapawa','shiopawa','ainoopushon'],
     colorA:'#e56b96', colorB:'#a83f68', shape:'fairy',
   },
+  tenshi: {
+    id:'tenshi', name:'天使', title:'交換所限定・慈悲のモンスター', exclusive:true,
+    base:{hp:29, atk:18, def:21, spd:15, eva:19},
+    desc:'天使ちゃんの交換所で手に入る、慈悲深いモンスター。',
+    skillPool:['tenshinohikari'],
+    colorA:'#fff3c0', colorB:'#d9b95c', shape:'tenshi',
+  },
+  akuma: {
+    id:'akuma', name:'悪魔', title:'交換所限定・禍々しいモンスター', exclusive:true,
+    base:{hp:12, atk:21, def:19, spd:8, eva:3},
+    desc:'悪魔ちゃんの交換所で手に入る、危険な香りのするモンスター。',
+    skillPool:['akunodaraku'],
+    colorA:'#7a3fd1', colorB:'#3a1a5c', shape:'akuma',
+  },
+  superudo: {
+    id:'superudo', name:'スペルド', title:'交換所限定・唯一の魔法使い', exclusive:true,
+    base:{hp:15, atk:10, def:10, spd:35, eva:5},
+    desc:'トランプのようなモンスター。トランプの魔法だからか、唯一魔法が使える。',
+    skillPool:['aisupawa','gigaaisupawa','osokuu','pawasutairu','mahopitan','hayamukin','toranpupuran'],
+    colorA:'#e8ab45', colorB:'#8a2f26', shape:'superudo',
+  },
+  golem: {
+    id:'golem', name:'ゴーレム', title:'交換所限定・岩の巨体', exclusive:true,
+    base:{hp:11, atk:16, def:29, spd:5, eva:21},
+    desc:'岩でできている。見るからにすごそう。',
+    skillPool:['disufensuraa','pawasutairu','bureruu','poyapawa','shiopawa'],
+    colorA:'#a17a58', colorB:'#5f4429', shape:'golem',
+  },
+  purun: {
+    id:'purun', name:'プルン', title:'交換所限定・プルプルボディ', exclusive:true,
+    base:{hp:15, atk:16, def:1, spd:60, eva:39},
+    desc:'プルプルしているスライムのようなモンスター。',
+    skillPool:['pawasutairu','disufensuraa','shiopawa','bureruu','agenrun','dorilinsupin','purunpurun'],
+    colorA:'#5aa9c9', colorB:'#2c5e75', shape:'purun',
+  },
+  fuwarin: {
+    id:'fuwarin', name:'フワリン', title:'交換所限定・ねむたい雲', exclusive:true,
+    base:{hp:13, atk:21, def:11, spd:28, eva:29},
+    desc:'ふわふわ、ねむたそうな雲のようなモンスター。',
+    skillPool:['fuwaattack','fuwaloop','fuwatoppa'],
+    colorA:'#cfe0ea', colorB:'#8fa9b8', shape:'fuwarin',
+  },
 };
 
 /* stage list, flattened */
@@ -888,6 +969,159 @@ function rollHuntRarity(){
 function huntCost(attemptNum){
   if(attemptNum <= 1) return 0;
   return Math.min(1000, (attemptNum-1) * 100);
+}
+
+/* =========================================================================
+   交換所
+   ========================================================================= */
+const SHOP_COOLDOWN_MS = 2*60*60*1000; // 2時間ごとに購入回数がリセット
+const SNACK_ITEM_MAX_USES = 3;
+const MONSTER_EXCHANGE_MAX = 1;
+
+const SHOP_VENDORS = [
+  {
+    key:'tenshi', name:'天使', icon:'👼', accent:'#f5dfa0',
+    lines:['あら...いらっしゃい..!良さそうなアイテムと交換できるよ!','最近は見慣れない天候だわね...なんでかしら...','この商品あなたに似合いそう！','私は大したことはしてないよ..?あなたに頑張ってほしいためだから！'],
+    items:[
+      {key:'kakuseisuru_s', kind:'snack', name:'カクセイスール・S', cost:10, currency:'proof', desc:'おやつの時間で使える。使うと次のボス戦（ミニ討伐は含まない）で勝率が上昇する。'},
+      {key:'tsuyokunaaru_s', kind:'snack', name:'ツヨクナール・S', cost:20, currency:'proof', desc:'おやつの時間で使える。使ったモンスターの全ステータスが+15または+30される。'},
+      {key:'tenshinohikari', kind:'skill', name:'【スキル】テンシノヒカリ', cost:25, currency:'proof', desc:'交換すると、どのモンスターでも習得できるようになる。相手にどんな状況でも大ダメージを与え、毒・混乱状態にする。'},
+      {key:'tenshi', kind:'monster', name:'天使（モンスター）', cost:30, currency:'proof', desc:'HP29 攻撃18 防御21 素早さ15 回避19。専用スキル：テンシノヒカリ。専用効果テンノジヒ：やられて減るライフが5→7に増える代わりに、ミニ討伐・ボス討伐で悪魔像の加護を受けられなくなる。'},
+    ],
+  },
+  {
+    key:'akuma', name:'悪魔', icon:'😈', accent:'#a97fe0',
+    lines:['やぁ！君がギャンブルできるアイテムを揃えておいたよ！','またどこかで悪の正義をださないとね！','ふふふ...おもしろい商品でしょ？','賢い使い方をしないと負けちゃうわよ？'],
+    items:[
+      {key:'gyanburaa', kind:'snack', name:'ギャンブラーポーション', cost:10, currency:'proof', desc:'おやつの時間で使える。成功（1/2）すると一つのステータスが大幅上昇。失敗すると大幅下降する。'},
+      {key:'tsuyokunaaru_g', kind:'snack', name:'ツヨクナール・G', cost:20, currency:'proof', desc:'おやつの時間で使える。成功（1/2）すると全ステータス+30または+50。失敗するとすべて-15または-30される。'},
+      {key:'akunodaraku', kind:'skill', name:'【スキル】アクノダラク', cost:25, currency:'proof', desc:'交換すると、どのモンスターでも習得できるようになる。相手のHPが高いときによく発動し、大ダメージ（天使のスキルより大きい）。代わりに自分の全ステータスが少し下がる。'},
+      {key:'akuma', kind:'monster', name:'悪魔（モンスター）', cost:30, currency:'proof', desc:'HP12 攻撃21 防御19 素早さ8 回避3。専用スキル：アクノダラク。専用効果アクパワー：トレーニングでのステータス上昇量が2倍になる代わり、低確率で失敗し全ステータス-10ほどになる。'},
+    ],
+  },
+  {
+    key:'aoi', name:'アオイ', icon:'💙', accent:'#7fc6ef',
+    lines:['やほ！元気〜？','いい商品かわからないけどおいてあるよ！','しってる？コロシアムメダルって討伐証と交換できるんだよ！','君の勇気に触れたいな！'],
+    items:[
+      {key:'proof_convert', kind:'convert', name:'討伐証への交換', cost:100, currency:'medals', desc:'コロシアムメダル100枚を、討伐証1枚と交換する。'},
+      {key:'superudo', kind:'monster', name:'スペルド（モンスター）', cost:10, currency:'proof', desc:'HP15 攻撃10 防御10 素早さ35 回避5。唯一魔法が使えるモンスター。専用スキル：トランププラン。'},
+      {key:'golem', kind:'monster', name:'ゴーレム（モンスター）', cost:20, currency:'proof', desc:'HP11 攻撃16 防御29 素早さ5 回避21。岩でできている、すごそうなモンスター。'},
+      {key:'purun', kind:'monster', name:'プルン（モンスター）', cost:30, currency:'proof', desc:'HP15 攻撃16 防御1 素早さ60 回避39。専用スキル：プルンプルン（通常攻撃を跳ね返す）。'},
+    ],
+  },
+  {
+    key:'fuwarin', name:'フワリン', icon:'☁️', accent:'#cfe0ea',
+    lines:['ふわぁ...（眠たい...）','ふ..わ！？（わ！来てたのね...）','ふぅん..（強くなりたいよね!）'],
+    items:[
+      {key:'proof_convert', kind:'convert', name:'討伐証への交換', cost:100, currency:'medals', desc:'コロシアムメダル100枚を、討伐証1枚と交換する。'},
+      {key:'fuwafuwa_drink', kind:'snack', name:'ふわふわドリンク', cost:15, currency:'proof', desc:'おやつの時間で使える。自分の攻撃力・防御力がそれぞれ+18される。'},
+      {key:'fuwarin', kind:'monster', name:'フワリン（モンスター）', cost:30, currency:'proof', desc:'HP13 攻撃21 防御11 素早さ28 回避29。専用効果エンジョイフワリン：トレーニングのステータス上昇量が1.5倍になる。'},
+    ],
+  },
+];
+function findShopItem(key){
+  for(const v of SHOP_VENDORS){ const it = v.items.find(i=>i.key===key); if(it) return it; }
+  return null;
+}
+/* おやつアイテムは「3回まで」使えるが、その回数は2時間ごとにリセットされる */
+function snackUsesInWindow(key){
+  const last = account.shopPurchasesAt[key];
+  if(!last || (Date.now()-last) >= SHOP_COOLDOWN_MS) return 0;
+  return account.snackItemUses[key]||0;
+}
+function snackUsesLeft(key){ return Math.max(0, SNACK_ITEM_MAX_USES - snackUsesInWindow(key)); }
+function snackCooldownText(key){
+  const last = account.shopPurchasesAt[key];
+  if(!last) return null;
+  const elapsed = Date.now()-last;
+  if(elapsed>=SHOP_COOLDOWN_MS) return null;
+  if(snackUsesInWindow(key) < SNACK_ITEM_MAX_USES) return null;
+  const remain = SHOP_COOLDOWN_MS-elapsed;
+  const mins = Math.max(1, Math.ceil(remain/60000));
+  return `あと約${mins}分で回数がリセット`;
+}
+/* おやつアイテムの効果を発動する */
+function applySnackItem(itemKey){
+  const label = (findShopItem(itemKey)||{}).name || itemKey;
+  if(itemKey==='kakuseisuru_s'){
+    S.nextBossBoost = true;
+    return `${label}を使った！ 次のボス戦で気合いが漲る！`;
+  }
+  if(itemKey==='tsuyokunaaru_s'){
+    const amt = pick([15,30]);
+    ['hp','atk','def','spd','eva'].forEach(k=> S.stats[k]+=amt);
+    return `${label}を使った！ 全ステータス+${amt}！`;
+  }
+  if(itemKey==='fuwafuwa_drink'){
+    S.stats.atk += 18; S.stats.def += 18;
+    return `${label}を使った！ 攻撃力・防御力がそれぞれ+18！`;
+  }
+  if(itemKey==='gyanburaa'){
+    const k = pick(['hp','atk','def','spd','eva']);
+    if(Math.random()<0.5){
+      const amt = rnd(20,40);
+      S.stats[k] += amt;
+      return `${label}を使った！ 成功！ ${statKeyLabel(k)}が+${amt}も上がった！`;
+    }else{
+      const amt = rnd(10,25);
+      S.stats[k] = Math.max(1, S.stats[k]-amt);
+      return `${label}を使った…失敗！ ${statKeyLabel(k)}が-${amt}下がってしまった…`;
+    }
+  }
+  if(itemKey==='tsuyokunaaru_g'){
+    if(Math.random()<0.5){
+      const amt = pick([30,50]);
+      ['hp','atk','def','spd','eva'].forEach(k=> S.stats[k]+=amt);
+      return `${label}を使った！ 成功！ 全ステータス+${amt}！`;
+    }else{
+      const amt = pick([15,30]);
+      ['hp','atk','def','spd','eva'].forEach(k=> S.stats[k]=Math.max(1,S.stats[k]-amt));
+      return `${label}を使った…失敗！ 全ステータス-${amt}になってしまった…`;
+    }
+  }
+  return `${label}を使った！`;
+}
+function purchaseShopItem(item){
+  if(item.kind==='snack'){
+    if(!(S.started && S.monsterId && S.runActive)) return {ok:false, msg:'育成中のモンスターがいないと使えない…'};
+    if(snackUsesLeft(item.key)<=0) return {ok:false, msg:'いまは使用回数の上限…'};
+    const cur = item.currency==='proof' ? account.proof : account.medals;
+    if(cur<item.cost) return {ok:false, msg:'足りない…'};
+    if(item.currency==='proof') account.proof -= item.cost; else account.medals -= item.cost;
+    const last = account.shopPurchasesAt[item.key];
+    if(!last || (Date.now()-last)>=SHOP_COOLDOWN_MS) account.snackItemUses[item.key]=0;
+    account.snackItemUses[item.key] = (account.snackItemUses[item.key]||0)+1;
+    account.shopPurchasesAt[item.key] = Date.now();
+    const msg = applySnackItem(item.key);
+    saveAccount(); saveGame();
+    return {ok:true, msg};
+  }
+  if(item.kind==='skill'){
+    if(account.unlockedSkills.includes(item.key)) return {ok:false, msg:'すでに解禁済み'};
+    const cur = item.currency==='proof' ? account.proof : account.medals;
+    if(cur<item.cost) return {ok:false, msg:'足りない…'};
+    if(item.currency==='proof') account.proof -= item.cost; else account.medals -= item.cost;
+    account.unlockedSkills.push(item.key);
+    saveAccount();
+    return {ok:true, msg:`${item.name}を解禁した！ 神殿の絆の祭壇でどのモンスターでも習得できるようになった。`};
+  }
+  if(item.kind==='monster'){
+    if(account.exchangedMonsters.includes(item.key)) return {ok:false, msg:'すでに交換済み'};
+    const cur = item.currency==='proof' ? account.proof : account.medals;
+    if(cur<item.cost) return {ok:false, msg:'足りない…'};
+    if(item.currency==='proof') account.proof -= item.cost; else account.medals -= item.cost;
+    account.exchangedMonsters.push(item.key);
+    saveAccount();
+    return {ok:true, msg:`${(STARTERS[item.key]||{}).name||item.name}を迎えた！ 次の挑戦のモンスター選択で選べる。`};
+  }
+  if(item.kind==='convert'){
+    if(account.medals<item.cost) return {ok:false, msg:'メダルが足りない…'};
+    account.medals -= item.cost;
+    account.proof += 1;
+    saveAccount();
+    return {ok:true, msg:'討伐証を1枚手に入れた！'};
+  }
+  return {ok:false, msg:''};
 }
 
 /* ---------------- レーティングマッチ ---------------- */
@@ -950,8 +1184,8 @@ function genRatingBots(playerPower, count){
 const SAVE_KEY = 'colosseum_save_v1';
 const ACCOUNT_KEY = 'colosseum_account_v1';
 const TOS_KEY = 'colosseum_tos_agree_v1';
-const VERSION = 'v0.1.3';
-const RATING_COOLDOWN_MS = 60*60*1000; // 1時間（試作段階のため、HTMLを開いてからの経過時間ベース）
+const VERSION = 'v0.2.0';
+const RATING_COOLDOWN_MS = 15*60*1000; // 15分（v0.2.0で1時間→15分に短縮）
 
 function freshState(){
   return {
@@ -988,6 +1222,12 @@ function freshAccount(){
     ratingLastPlayedAt:null, // 最後にレーティングマッチを行った時刻（ms）
     ratingWins:0,
     ratingLosses:0,
+    lastRatingResult:null,   // 直近のレーティングマッチの結果 {date, ranking:[...]}
+    proof:0,                  // 討伐証（交換所専用通貨）
+    exchangedMonsters:[],     // 交換所で交換したモンスターid（1体につき1回まで）
+    unlockedSkills:[],        // 交換所で解禁した全モンスター共通スキル
+    snackItemUses:{},         // おやつアイテムの使用回数 {itemKey: count}
+    shopPurchasesAt:{},       // アイテムキー→直近購入時刻（2時間で回数リセット）
   };
 }
 
@@ -1080,9 +1320,8 @@ function showNoticeModal(){
     <div class="modal-box" style="max-height:80vh; overflow-y:auto;">
       <div class="modal-title" style="color:var(--gold-hi);">📢 お知らせ（${VERSION}）</div>
       <div class="notice-body">
-        <p><b>⚔️ バトル演出の大幅リニューアル</b><br>バトル画面がフルスクリーンになり、モンスターごとに専用の攻撃モーション（風・炎・剣・魔力の腕・槍・愛のパンチ）が加わりました。ダメージの表示やHPバーもより見やすく一新しています。</p>
-        <p><b>🏠 自室のフルスクリーン化</b><br>自室の表示がより大きく、雰囲気たっぷりに。下部のタブや各種ボタンはそのまま使えます。</p>
-        <p><b>🥊 レーティングマッチを追加</b><br>自分が育てたモンスターと戦闘力が近いBotたちと、Bot4体＋自分1体、合計5体が入り乱れるバトルで力試しができるようになりました。</p>
+        <p><b>🥊 レーティングマッチをさらに見やすく</b><br>バトル表示をすばやさ順の横一列に変更し、誰が誰を攻撃しているか一目で分かるようになりました。バトル結果はランキング形式のカードで表示され、挑戦間隔も1時間→15分に短縮しています。</p>
+        <p><b>🎪 交換所がオープン</b><br>自室のとなりに新タブ「交換所」が登場。天使・悪魔・アオイ・フワリン、4人の個性豊かな窓口で、新しいモンスターやおやつアイテム、強力なスキルを「討伐証」と交換できます。</p>
       </div>
       <button class="btn block" id="noticeClose" style="margin-top:14px;">閉じる</button>
     </div>
@@ -1266,6 +1505,58 @@ function monsterSVG(desc, size=104){
         <circle cx="82" cy="46" r="2.6" fill="#fff" opacity=".8"/>
         <circle cx="16" cy="60" r="1.6" fill="#fff" opacity=".6"/>
       `; break;
+    case 'tenshi':
+      body = `
+        <ellipse cx="52" cy="20" rx="15" ry="6" fill="none" stroke="${colorB}" stroke-width="3" opacity=".9"/>
+        <path d="M14 44 Q-2 30 8 54 Q18 68 32 58 Z" fill="#fff" opacity=".92"/>
+        <path d="M90 44 Q106 30 96 54 Q86 68 72 58 Z" fill="#fff" opacity=".92"/>
+        <ellipse cx="52" cy="68" rx="27" ry="25" fill="url(#g)"/>
+        ${eyes(43,66,61,66,4)}
+        <path d="M45 80 Q52 85 59 80" stroke="#1c1116" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <circle cx="30" cy="56" r="2" fill="#fff" opacity=".8"/>
+        <circle cx="76" cy="52" r="2.4" fill="#fff" opacity=".8"/>
+      `; break;
+    case 'akuma':
+      body = `
+        <ellipse cx="52" cy="68" rx="26" ry="25" fill="url(#g)"/>
+        <path d="M34 34 L26 16 L42 30 Z" fill="${colorB}"/>
+        <path d="M70 34 L78 16 L62 30 Z" fill="${colorB}"/>
+        <path d="M76 84 Q92 90 90 104 Q84 96 76 92 Z" fill="${colorB}"/>
+        ${eyes(43,64,61,64,4.2)}
+        <path d="M44 80 Q52 74 60 80" stroke="#1c1116" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        <path d="M38 82 L42 88 M46 84 L48 90 M56 90 L58 84 M62 88 L66 82" stroke="${colorB}" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+      `; break;
+    case 'superudo':
+      body = `
+        <rect x="24" y="26" width="56" height="76" rx="10" fill="url(#g)" stroke="#fff" stroke-width="3"/>
+        <path d="M52 42 C48 36 40 38 40 46 C40 54 52 62 52 62 C52 62 64 54 64 46 C64 38 56 36 52 42 Z" fill="${colorB}"/>
+        <path d="M40 80 L52 68 L64 80 L52 92 Z" fill="${colorB}" opacity=".85"/>
+        ${eyes(43,52,61,52,3.6)}
+      `; break;
+    case 'golem':
+      body = `
+        <path d="M22 96 L20 60 L34 40 L70 40 L84 60 L82 96 Z" fill="url(#g)"/>
+        <path d="M20 60 L84 60" stroke="${colorB}" stroke-width="3" opacity=".6"/>
+        <path d="M34 40 L30 60 M70 40 L74 60" stroke="${colorB}" stroke-width="3" opacity=".5"/>
+        <rect x="30" y="70" width="10" height="10" fill="${colorB}" opacity=".4"/>
+        <rect x="64" y="76" width="8" height="8" fill="${colorB}" opacity=".4"/>
+        ${eyes(42,54,62,54,4.4)}
+        <path d="M44 70 L60 70" stroke="#1c1116" stroke-width="2.6" stroke-linecap="round"/>
+      `; break;
+    case 'purun':
+      body = `
+        <path d="M52 18 Q82 54 80 76 A28 30 0 1 1 24 76 Q22 54 52 18 Z" fill="url(#g)"/>
+        <ellipse cx="38" cy="56" rx="8" ry="13" fill="#fff" opacity=".28"/>
+        ${eyes(42,74,60,74,3.6)}
+        <path d="M46 86 Q52 90 58 86" stroke="#1c1116" stroke-width="2" fill="none" stroke-linecap="round"/>
+      `; break;
+    case 'fuwarin':
+      body = `
+        <path d="M20 66 Q10 44 30 42 Q34 26 54 30 Q64 16 80 30 Q100 34 92 54 Q100 70 80 74 Q70 88 50 80 Q28 88 20 66 Z" fill="url(#g)"/>
+        <path d="M38 60 Q44 56 50 60" stroke="#1c1116" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M58 60 Q64 56 70 60" stroke="#1c1116" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <path d="M44 72 Q54 78 64 72" stroke="#1c1116" stroke-width="2" fill="none" stroke-linecap="round"/>
+      `; break;
     case 'kaiju':
     default:
       body = `
@@ -1396,7 +1687,7 @@ function renderTitle(){
         襲撃され、奪われたコロシアム。自分だけのモンスターを育て、7つの地を越え、奪われた闘技場を取り戻せ。
       </p>
       <button class="btn block" id="startBtn" style="max-width:280px;">冒険をはじめる</button>
-      <button class="btn secondary block" id="continueBtn" style="max-width:280px; display:${S.monsterId?'flex':'none'};">つづきから</button>
+      <button class="btn secondary block" id="continueBtn" style="max-width:280px; display:${(S.monsterId&&S.runActive)?'flex':'none'};">つづきから</button>
       <div style="display:flex; gap:8px; max-width:280px; width:100%;">
         <button class="btn secondary" id="noticeBtn" style="flex:1;"><span class="tiny">📢 お知らせ</span></button>
         <button class="btn secondary" id="titleTransferBtn" style="flex:1;"><span class="tiny">🔑 引き継ぎ</span></button>
@@ -1427,13 +1718,13 @@ function renderMonsterSelect(){
   </div>`);
   const list = wrap.querySelector('#monList');
   let picked = null;
-  Object.values(STARTERS).forEach(m=>{
+  Object.values(STARTERS).filter(m=> !m.exclusive || account.exchangedMonsters.includes(m.id)).forEach(m=>{
     const card = el(`
       <div class="mon-card" data-id="${m.id}">
         <div style="display:flex; gap:12px; align-items:center;">
           <div class="mon-avatar-wrap" style="padding:0;">${monsterSVG(m,74)}</div>
           <div style="flex:1;">
-            <div style="font-weight:900; color:var(--gold-hi); font-size:1.05rem;">${m.name}</div>
+            <div style="font-weight:900; color:var(--gold-hi); font-size:1.05rem;">${m.name}${m.exclusive?' <span class="tag gold" style="font-size:.6rem;">交換所限定</span>':''}</div>
             <div class="tiny dim">${m.title}</div>
           </div>
         </div>
@@ -1459,6 +1750,8 @@ function renderMonsterSelect(){
     S.monsterId = picked;
     S.stats = Object.assign({}, STARTERS[picked].base);
     S.runActive = true;
+    /* 天使専用「テンノジヒ」：やられて減るライフが5→7に増える（代わりに悪魔像の加護を受けられない） */
+    if(picked==='tenshi') S.lives = 7;
     toast(`${STARTERS[picked].name}が仲間になった！`);
     saveGame(); render();
   };
@@ -1616,6 +1909,12 @@ function renderTraining(){
   </div>`);
   wrap.appendChild(templeRow);
 
+  if(account.roster.length>=1){
+    const shopLinkBtn = el(`<button class="btn secondary block" id="shopLinkBtn">🎪 交換所でおやつアイテムを使う</button>`);
+    wrap.appendChild(shopLinkBtn);
+    shopLinkBtn.onclick = ()=>{ S.viewMode='shop'; saveGame(); render(); };
+  }
+
   actionCard.querySelector('#trainBtn').onclick = ()=>{ sfxTrain(); showTrainOptions(wrap, actionCard, stage); };
   actionCard.querySelector('#playBtn').onclick = ()=> doPlay(wrap, actionCard, stage);
   templeRow.querySelector('#blessingBtn').onclick = ()=> openTemple();
@@ -1644,6 +1943,9 @@ function applyLovePassive(statKey, amount){
   if(S.monsterId==='aitan' && ['hp','atk','def'].includes(statKey)){
     return Math.round(amount*1.25);
   }
+  if(S.monsterId==='fuwarin'){
+    return Math.round(amount*1.5);
+  }
   return amount;
 }
 
@@ -1659,9 +1961,28 @@ function showTrainOptions(wrap, actionCard, stage){
       ${opt.golden?'✨ ゴールデン ✨<br>':''}${statKeyLabel(opt.main)}+${mainGain} ／ ${statKeyLabel(opt.sub)}+${subGain}
     </button>`);
     btn.onclick = ()=>{
-      S.stats[opt.main] += mainGain;
-      S.stats[opt.sub] += subGain;
+      let appliedMain = mainGain, appliedSub = subGain;
       let extraMsg = '';
+      let akumaFailed = false;
+      /* 悪魔専用「アクパワー」：ステータス上昇量が2倍。低確率で失敗し、代わりに全ステータスが下がる */
+      if(S.monsterId==='akuma'){
+        if(Math.random()<0.85){
+          appliedMain *= 2; appliedSub *= 2;
+        }else{
+          akumaFailed = true;
+        }
+      }
+      let msg;
+      if(akumaFailed){
+        const down = rnd(8,12);
+        ['hp','atk','def','spd','eva'].forEach(k=> S.stats[k]=Math.max(1, S.stats[k]-down));
+        msg = 'アクパワーが暴走…！';
+        extraMsg = `（全ステータスが${down}ほど下がってしまった…）`;
+      }else{
+        S.stats[opt.main] += appliedMain;
+        S.stats[opt.sub] += appliedSub;
+        msg = `${statKeyLabel(opt.main)}+${appliedMain}、${statKeyLabel(opt.sub)}+${appliedSub}`;
+      }
       /* ポンキチ専用「すばこさのいやしさ」：トレーニングのたび素早さ+1 */
       if(S.monsterId==='ponkichi'){
         S.stats.spd += 1;
@@ -1673,9 +1994,8 @@ function showTrainOptions(wrap, actionCard, stage){
         S.stats[bonusKey] += 3;
         extraMsg += `（ヘン兵の特性で${statKeyLabel(bonusKey)}+3！）`;
       }
-      const msg = `${statKeyLabel(opt.main)}+${mainGain}、${statKeyLabel(opt.sub)}+${subGain}`;
       toast(`${msg}！`);
-      resolveStageAfterAction(wrap, actionCard, stage, `${starter().name}は特訓した！ ${opt.golden?'✨ゴールデンメニュー✨ ':''}${msg}！${extraMsg}`, true, [opt.main, opt.sub]);
+      resolveStageAfterAction(wrap, actionCard, stage, `${starter().name}は特訓した！ ${opt.golden&&!akumaFailed?'✨ゴールデンメニュー✨ ':''}${msg}！${extraMsg}`, !akumaFailed, [opt.main, opt.sub]);
     };
     optWrap.appendChild(btn);
   });
@@ -1771,12 +2091,13 @@ function renderQuestGate(){
   const boostCost = isFinal ? 60 : (isBoss ? 25*stage.world : 10*stage.world);
   const devilLeft = 30 - S.devilPactsUsed;
   const angelLeft = 10 - S.angelPactsUsed;
+  const isTenshi = S.monsterId==='tenshi';
   let selected = 'none';
   const boostCard = el(`<div class="card">
     <p class="small dim" style="margin-bottom:10px;">戦いの前に、力を借りることができる（1つだけ選べる）</p>
     <div style="display:flex; flex-direction:column; gap:8px;" id="boostOptions">
       <button class="boost-opt" data-v="boost">🔥 気合いブースト<span class="tiny dim">🪙${boostCost}・攻撃力+15%（この戦闘のみ）</span></button>
-      <button class="boost-opt" data-v="devil" ${devilLeft<=0?'disabled':''}>😈 悪魔像と契約<span class="tiny dim">🪙10・勝利時のステータス上昇が大幅UP／敵も強化される（残り${Math.max(0,devilLeft)}回）</span></button>
+      <button class="boost-opt" data-v="devil" ${(devilLeft<=0||isTenshi)?'disabled':''}>😈 悪魔像と契約<span class="tiny dim">${isTenshi?'テンノジヒの効果で契約できない':`🪙10・勝利時のステータス上昇が大幅UP／敵も強化される（残り${Math.max(0,devilLeft)}回）`}</span></button>
       <button class="boost-opt" data-v="angel" ${angelLeft<=0?'disabled':''}>😇 天使像と契約<span class="tiny dim">🪙10・自分のステータスが上昇（この戦闘のみ・残り${Math.max(0,angelLeft)}回）</span></button>
     </div>
   </div>`);
@@ -1914,21 +2235,24 @@ function openTemple(){
     <div id="skillList" style="display:flex; flex-direction:column; gap:8px;"></div>
   </div>`);
   const sList = sCard.querySelector('#skillList');
-  st.skillPool.forEach(key=>{
+  const availableKeys = [...new Set([...st.skillPool, ...account.unlockedSkills])];
+  availableKeys.forEach(key=>{
     const sk = SKILLS[key];
+    if(!sk) return;
     const owned = S.ownedSkills.includes(key);
     const equipped = S.equippedSkills.includes(key);
+    const lacksRequire = sk.requires && !S.ownedSkills.includes(sk.requires);
     const row = el(`<div class="skill-row">
       <div class="info">
-        <div class="name">${sk.name} ${equipped?'<span class="tag gold">装備中</span>':''}</div>
-        <div class="desc">${sk.desc}</div>
+        <div class="name">${sk.name} ${equipped?'<span class="tag gold">装備中</span>':''}${account.unlockedSkills.includes(key)&&!st.skillPool.includes(key)?'<span class="tag heart">交換所解禁</span>':''}</div>
+        <div class="desc">${sk.desc}${lacksRequire?`<br><span style="color:var(--crimson);">※先に「${SKILLS[sk.requires].name}」を習得しよう</span>`:''}</div>
       </div>
     </div>`);
     const btnWrap = document.createElement('div');
     if(!owned){
-      const b = el(`<button class="btn secondary" style="padding:8px 10px;" ${S.hearts<sk.cost?'disabled':''}>💗${sk.cost}</button>`);
+      const b = el(`<button class="btn secondary" style="padding:8px 10px;" ${(S.hearts<sk.cost||lacksRequire)?'disabled':''}>💗${sk.cost}</button>`);
       b.onclick = ()=>{
-        if(S.hearts<sk.cost) return;
+        if(S.hearts<sk.cost || lacksRequire) return;
         S.hearts -= sk.cost; S.ownedSkills.push(key);
         toast(`${sk.name}を習得した！`);
         saveGame(); overlay.remove(); openTemple();
@@ -1971,27 +2295,32 @@ function startBattle(stage, enemy, preBattleChoice, customPlayer){
   const enemyMult = isDevil ? 1.3 : 1;
   const angelMult = isAngel ? 1.2 : 1;
 
+  /* カクセイスール・Sを使っていた場合、次のボス戦（ミニ討伐は含まない）で命中率と与ダメージが少し上がる */
+  const useAwaken = !customPlayer && S.nextBossBoost && (stage.type==='B' || stage.type==='F');
+  if(useAwaken) S.nextBossBoost = false;
+
   const playerHp = Math.round(pStats.hp * angelMult);
   battleState = {
     stage, preBattleChoice, devilPact:isDevil, angelPact:isAngel,
     player:{
       name:pName, mon:pMon,
       hp:playerHp, maxHp:playerHp,
-      atk: Math.round(pStats.atk * angelMult * (isBoost?1.15:1)),
+      atk: Math.round(pStats.atk * angelMult * (isBoost?1.15:1) * (useAwaken?1.08:1)),
       def: Math.round(pStats.def * angelMult),
       spd: Math.round(pStats.spd * angelMult),
       eva: Math.round(pStats.eva * angelMult),
-      acc:0, usedBuffs:[], cds:{}, status:{poison:0, confuse:0},
+      acc: useAwaken?0.15:0, usedBuffs:[], cds:{}, status:{poison:0, confuse:0},
+      magicMod:1, reflectTurns:0, chargingTurns:0,
     },
     enemy:{
       ...enemy, acc:0,
       hp:Math.round(enemy.hp*enemyMult), maxHp:Math.round(enemy.maxHp*enemyMult),
       atk:Math.round(enemy.atk*enemyMult), def:Math.round(enemy.def*enemyMult),
       spd:Math.round(enemy.spd*enemyMult), eva:Math.round(enemy.eva*enemyMult),
-      status:{poison:0, confuse:0},
+      status:{poison:0, confuse:0}, magicMod:1,
     },
     log:[
-      isBoost?'気合いを入れて戦いに挑む！':isDevil?'悪魔像と契約し、禍々しい力を借りた…！':isAngel?'天使像の加護を受けた！':`${enemy.name}が現れた！`,
+      isBoost?'気合いを入れて戦いに挑む！':isDevil?'悪魔像と契約し、禍々しい力を借りた…！':isAngel?'天使像の加護を受けた！':useAwaken?'カクセイスール・Sの効果で気力が満ちている！':`${enemy.name}が現れた！`,
     ],
     over:false, win:false, speed:1, timer:null, fx:null, skipped:false,
   };
@@ -2119,7 +2448,7 @@ function renderBattle(){
 
 /* the player's monster now acts on its own: normal attack, or — only if a
    skill has been learned and equipped — a chance to unleash that skill instead. */
-const REPEATABLE_SKILL_KINDS = ['cond_dmg','status','dmg_debuff','roulette'];
+const REPEATABLE_SKILL_KINDS = ['cond_dmg','status','dmg_debuff','roulette','magic_dmg','card_draw','dmg_selfbuff','universal_dmg_status','universal_dmg_selfdown'];
 function decidePlayerAction(bs){
   const p = bs.player;
   const usable = S.equippedSkills.filter(key=>{
@@ -2233,6 +2562,16 @@ function checkConfuse(bs, side){
 function resolvePlayerAction(bs, action){
   const p = bs.player, e = bs.enemy;
   if(p.hp<=0) return {target:null};
+  if(p.chargingTurns>0){
+    p.chargingTurns--;
+    if(p.chargingTurns===0){
+      ['hp','atk','def','spd','eva'].forEach(k=> p[k]=Math.round(p[k]*(p.chargeMult||5)));
+      logMsg(`${p.name}のためた力が解き放たれた！ ステータスが大幅に上昇した！`);
+      return {target:'player', buff:true, skillName:'フワトッパ発動！'};
+    }
+    logMsg(`${p.name}は力をためている…`);
+    return {target:'player', buff:true, skillName:'ためている…'};
+  }
   const confuseResult = checkConfuse(bs, 'player');
   if(confuseResult) return confuseResult;
   if(action.type==='attack'){
@@ -2300,6 +2639,102 @@ function resolvePlayerAction(bs, action){
     logMsg(outcome.msg(e.name));
     return {target:'enemy', buff:true, skillName:`${sk.name}：${outcome.label}`};
   }
+  if(sk.kind==='debuff_magic'){
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    e.magicMod = Math.max(0.2, (e.magicMod||1)*sk.mult);
+    p.usedBuffs.push(action.key);
+    logMsg(`${p.name}は${sk.name}を使った！ ${e.name}の魔力が下がった！`);
+    return {target:'enemy', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='buff_magic'){
+    p.magicMod = (p.magicMod||1)*sk.mult;
+    p.usedBuffs.push(action.key);
+    logMsg(`${p.name}は${sk.name}を使った！ 魔力が高まった！`);
+    return {target:'player', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='magic_dmg'){
+    p.cds[action.key] = 3;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const magicPower = (p.atk + p.spd*1.5) * (p.magicMod||1) * sk.mult;
+    const dmg = Math.max(1, Math.round(magicPower - e.def*0.3));
+    e.hp -= dmg;
+    logMsg(`${p.name}の${sk.name}！ 魔力の一撃で${e.name}に${dmg}のダメージ！`);
+    return {target:'enemy', dmg, crit:true};
+  }
+  if(sk.kind==='card_draw'){
+    p.cds[action.key] = 4;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const card = pick(['heart','spade','diamond','clover','joker']);
+    logMsg(`${p.name}は${sk.name}！ 引いたカードは――`);
+    if(card==='heart'){
+      p.hp = p.maxHp;
+      logMsg(`♥ハート！ ${p.name}のHPが全回復した！`);
+      return {target:'player', buff:true, skillName:'トランププラン：♥ハート'};
+    }
+    if(card==='spade'){
+      e.status.poison = (e.status.poison||0)+3;
+      logMsg(`♠スペード！ ${e.name}は毒状態になった！`);
+      return {target:'enemy', buff:true, skillName:'トランププラン：♠スペード'};
+    }
+    if(card==='diamond'){
+      const magicPower = (p.atk + p.spd*1.5) * (p.magicMod||1) * 1.5;
+      const dmg = Math.max(1, Math.round(magicPower - e.def*0.3));
+      e.hp -= dmg;
+      logMsg(`♦ダイヤ！ ギガアイスーパーワが発動！ ${e.name}に${dmg}のダメージ！`);
+      return {target:'enemy', dmg, crit:true};
+    }
+    if(card==='clover'){
+      p.atk = Math.round(p.atk*1.5);
+      logMsg(`♣クローバー！ パワースタイルが発動！ 攻撃力が上がった！`);
+      return {target:'player', buff:true, skillName:'トランププラン：♣クローバー'};
+    }
+    e.hp = 0;
+    logMsg(`🃏ジョーカー！ ${e.name}をどんな状況でも撃破した！`);
+    return {target:'enemy', dmg: e.maxHp, crit:true};
+  }
+  if(sk.kind==='reflect_buff'){
+    p.reflectTurns = sk.turns;
+    p.usedBuffs.push(action.key);
+    logMsg(`${p.name}は${sk.name}を使った！ プルプル状態になった！`);
+    return {target:'player', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='dmg_selfbuff'){
+    p.cds[action.key] = 3;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const dmg = basicDamage(Math.round(p.atk*sk.dmgMult), e.def);
+    e.hp -= dmg;
+    p[sk.stat] = Math.round(p[sk.stat]*sk.mult);
+    logMsg(`${p.name}の${sk.name}！ ${e.name}に${dmg}のダメージ、自分の${statKeyLabel(sk.stat)}が上がった！`);
+    return {target:'enemy', dmg};
+  }
+  if(sk.kind==='charge_buff'){
+    p.chargingTurns = sk.chargeTurns;
+    p.chargeMult = sk.mult;
+    logMsg(`${p.name}は${sk.name}を使い、力をためはじめた…！`);
+    return {target:'player', buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='universal_dmg_status'){
+    p.cds[action.key] = 3;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const dmg = Math.max(1, Math.round(p.atk*2 - e.def*0.3));
+    e.hp -= dmg;
+    e.status.poison = (e.status.poison||0)+3;
+    e.status.confuse = (e.status.confuse||0)+3;
+    logMsg(`${p.name}の${sk.name}！ ${e.name}に${dmg}の大ダメージ！ さらに毒と混乱状態にした！`);
+    return {target:'enemy', dmg, crit:true};
+  }
+  if(sk.kind==='universal_dmg_selfdown'){
+    p.cds[action.key] = 3;
+    if(!tryHit(p.acc, e.eva)){ logMsg(`${p.name}の${sk.name}は外れた！`); return {target:'enemy', missed:true}; }
+    const ratio = e.hp/e.maxHp;
+    const bonus = ratio>=0.5 ? 1.4 : 1.0;
+    const dmg = Math.max(1, Math.round(p.atk*2.3*bonus - e.def*0.3));
+    e.hp -= dmg;
+    const selfDown = rnd(1,3);
+    ['hp','atk','def','spd','eva'].forEach(k=> p[k]=Math.max(1, p[k]-selfDown));
+    logMsg(`${p.name}の${sk.name}！ ${e.name}に${dmg}の大ダメージ！ 代償として自分の全ステータスが${selfDown}下がった！`);
+    return {target:'enemy', dmg, crit:true};
+  }
   return {target:null};
 }
 
@@ -2311,6 +2746,12 @@ function resolveEnemyAction(bs, action){
   if(action.type==='attack'){
     if(!tryHit(e.acc, p.eva)){ logMsg(`${e.name}のこうげきは外れた！`); return {target:'player', missed:true}; }
     const dmg = basicDamage(e.atk, p.def);
+    if(p.reflectTurns>0){
+      p.reflectTurns--;
+      e.hp -= dmg;
+      logMsg(`${p.name}はプルプル状態！ ${e.name}のこうげきを跳ね返した！ ${e.name}に${dmg}のダメージ！`);
+      return {target:'enemy', dmg};
+    }
     p.hp -= dmg;
     logMsg(`${e.name}のこうげき！ ${p.name}に${dmg}のダメージ！`);
     return {target:'player', dmg};
@@ -2449,15 +2890,19 @@ function buildRatingCombatant(entry, isPlayer){
     speciesId: entry.speciesId,
     hp: s.hp, maxHp: s.hp, atk: s.atk, def: s.def, spd: s.spd, eva: s.eva, acc:0,
     status:{poison:0, confuse:0}, cds:{}, usedBuffs:[],
+    magicMod:1, reflectTurns:0, chargingTurns:0,
     skills: isPlayer ? skillsForRating(entry.speciesId) : entry.skills,
+    basePower: computePower(s),
     isPlayer, alive:true,
   };
 }
 function startRatingBattle(myEntry, bots){
   const combatants = [ buildRatingCombatant(myEntry, true) ];
   bots.forEach(b=> combatants.push(buildRatingCombatant(b, false)));
+  /* 横一列の並び順は開始時点のすばやさ順で固定（バトル中の変動で並びがグチャグチャにならないように） */
+  const displayOrder = [...combatants].sort((a,b)=> b.spd-a.spd).map(c=>c.id);
   ratingBattleState = {
-    combatants, log:['レーティングマッチ開始！ 5体が入り乱れる！'],
+    combatants, displayOrder, log:['レーティングマッチ開始！ 5体が入り乱れる！'],
     over:false, result:null, eliminationOrder:[],
     fx:null, speed:1, timer:null, skipped:false, winBannerScheduled:false,
   };
@@ -2553,10 +2998,110 @@ function ratingApplySkill(bs, actor, target, sk, key){
     if(target.hp<=0) killCombatant(bs, target);
     return {actor:actor.id, target:target.id, buff:true, skillName:`${sk.name}：${outcome.label}`};
   }
+  if(sk.kind==='debuff_magic'){
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    target.magicMod = Math.max(0.2, (target.magicMod||1)*sk.mult);
+    actor.usedBuffs.push(key);
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使った！ ${target.name}の魔力が下がった！`);
+    return {actor:actor.id, target:target.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='buff_magic'){
+    actor.magicMod = (actor.magicMod||1)*sk.mult;
+    actor.usedBuffs.push(key);
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使った！ 魔力が高まった！`);
+    return {actor:actor.id, target:actor.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='magic_dmg'){
+    actor.cds[key]=3;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const magicPower = (actor.atk + actor.spd*1.5) * (actor.magicMod||1) * sk.mult;
+    const dmg = Math.max(1, Math.round(magicPower - target.def*0.3));
+    target.hp -= dmg;
+    logRatingMsg(bs, `${actor.name}の${sk.name}！ 魔力の一撃で${target.name}に${dmg}のダメージ！`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg, crit:true};
+  }
+  if(sk.kind==='dmg_selfbuff'){
+    actor.cds[key]=3;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const dmg = basicDamage(Math.round(actor.atk*sk.dmgMult), target.def);
+    target.hp -= dmg;
+    actor[sk.stat] = Math.round(actor[sk.stat]*sk.mult);
+    logRatingMsg(bs, `${actor.name}の${sk.name}！ ${target.name}に${dmg}のダメージ、自分の${statKeyLabel(sk.stat)}が上がった！`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg};
+  }
+  if(sk.kind==='reflect_buff'){
+    actor.reflectTurns = sk.turns;
+    actor.usedBuffs.push(key);
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使った！ プルプル状態になった！`);
+    return {actor:actor.id, target:actor.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='charge_buff'){
+    actor.chargingTurns = sk.chargeTurns;
+    actor.chargeMult = sk.mult;
+    logRatingMsg(bs, `${actor.name}は${sk.name}を使い、力をためはじめた…！`);
+    return {actor:actor.id, target:actor.id, buff:true, skillName:sk.name};
+  }
+  if(sk.kind==='universal_dmg_status'){
+    actor.cds[key]=3;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const dmg = Math.max(1, Math.round(actor.atk*2 - target.def*0.3));
+    target.hp -= dmg;
+    target.status.poison = (target.status.poison||0)+3;
+    target.status.confuse = (target.status.confuse||0)+3;
+    logRatingMsg(bs, `${actor.name}の${sk.name}！ ${target.name}に${dmg}の大ダメージ！ 毒と混乱状態にした！`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg, crit:true};
+  }
+  if(sk.kind==='universal_dmg_selfdown'){
+    actor.cds[key]=3;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const ratio = target.hp/target.maxHp;
+    const bonus = ratio>=0.5 ? 1.4 : 1.0;
+    const dmg = Math.max(1, Math.round(actor.atk*2.3*bonus - target.def*0.3));
+    target.hp -= dmg;
+    const selfDown = rnd(1,3);
+    ['hp','atk','def','spd','eva'].forEach(k=> actor[k]=Math.max(1, actor[k]-selfDown));
+    logRatingMsg(bs, `${actor.name}の${sk.name}！ ${target.name}に${dmg}の大ダメージ！ 代償で自分の全ステータスが${selfDown}下がった！`);
+    if(target.hp<=0) killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg, crit:true};
+  }
+  if(sk.kind==='card_draw'){
+    actor.cds[key]=4;
+    if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}の${sk.name}は外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
+    const card = pick(['heart','spade','diamond','clover','joker']);
+    logRatingMsg(bs, `${actor.name}は${sk.name}！ 引いたカードは――`);
+    if(card==='heart'){ actor.hp=actor.maxHp; logRatingMsg(bs, `♥ハート！ ${actor.name}のHPが全回復した！`); return {actor:actor.id, target:actor.id, buff:true, skillName:'トランププラン：♥'}; }
+    if(card==='spade'){ target.status.poison=(target.status.poison||0)+3; logRatingMsg(bs, `♠スペード！ ${target.name}は毒状態になった！`); return {actor:actor.id, target:target.id, buff:true, skillName:'トランププラン：♠'}; }
+    if(card==='diamond'){
+      const magicPower = (actor.atk + actor.spd*1.5) * (actor.magicMod||1) * 1.5;
+      const dmg = Math.max(1, Math.round(magicPower - target.def*0.3));
+      target.hp -= dmg;
+      logRatingMsg(bs, `♦ダイヤ！ ${target.name}に${dmg}のダメージ！`);
+      if(target.hp<=0) killCombatant(bs, target);
+      return {actor:actor.id, target:target.id, dmg, crit:true};
+    }
+    if(card==='clover'){ actor.atk=Math.round(actor.atk*1.5); logRatingMsg(bs, `♣クローバー！ 攻撃力が上がった！`); return {actor:actor.id, target:actor.id, buff:true, skillName:'トランププラン：♣'}; }
+    target.hp = 0;
+    logRatingMsg(bs, `🃏ジョーカー！ ${target.name}をどんな状況でも撃破した！`);
+    killCombatant(bs, target);
+    return {actor:actor.id, target:target.id, dmg: target.maxHp, crit:true};
+  }
   return {actor:actor.id, target:null};
 }
 function ratingResolveAction(bs, actor, action){
   if(!actor.alive) return {actor:actor.id, target:null};
+  if(actor.chargingTurns>0){
+    actor.chargingTurns--;
+    if(actor.chargingTurns===0){
+      ['hp','atk','def','spd','eva'].forEach(k=> actor[k]=Math.round(actor[k]*(actor.chargeMult||5)));
+      logRatingMsg(bs, `${actor.name}のためた力が解き放たれた！ ステータスが大幅に上昇した！`);
+      return {actor:actor.id, target:actor.id, buff:true, skillName:'フワトッパ発動！'};
+    }
+    logRatingMsg(bs, `${actor.name}は力をためている…`);
+    return {actor:actor.id, target:actor.id, buff:true, skillName:'ためている…'};
+  }
   const confuseResult = ratingCheckConfuse(bs, actor);
   if(confuseResult) return confuseResult;
   let target = (action && action.target && action.target.alive) ? action.target : pick(aliveCombatants(bs).filter(c=>c.id!==actor.id));
@@ -2564,6 +3109,13 @@ function ratingResolveAction(bs, actor, action){
   if(!action || action.type==='attack'){
     if(!tryHit(actor.acc, target.eva)){ logRatingMsg(bs, `${actor.name}のこうげきは${target.name}に外れた！`); return {actor:actor.id, target:target.id, missed:true}; }
     const dmg = basicDamage(actor.atk, target.def);
+    if(target.reflectTurns>0){
+      target.reflectTurns--;
+      actor.hp -= dmg;
+      logRatingMsg(bs, `${target.name}はプルプル状態！ ${actor.name}のこうげきを跳ね返した！ ${actor.name}に${dmg}のダメージ！`);
+      if(actor.hp<=0) killCombatant(bs, actor);
+      return {actor:actor.id, target:actor.id, dmg};
+    }
     target.hp -= dmg;
     logRatingMsg(bs, `${actor.name}のこうげき！ ${target.name}に${dmg}のダメージ！`);
     if(target.hp<=0) killCombatant(bs, target);
@@ -2644,9 +3196,23 @@ function ratingSkipToEnd(){
   }
   render();
 }
+function formatDateJP(d){ return `${d.getMonth()+1}/${d.getDate()}`; }
+function buildRatingRanking(bs){
+  const ranking = [];
+  const survivor = aliveCombatants(bs)[0];
+  if(survivor) ranking.push(survivor);
+  for(let i=bs.eliminationOrder.length-1;i>=0;i--){
+    const c = bs.combatants.find(x=>x.id===bs.eliminationOrder[i]);
+    if(c) ranking.push(c);
+  }
+  return ranking.map((c,i)=>({
+    name:c.name, speciesId:c.speciesId, power:c.basePower, rank:i+1, isPlayer:c.isPlayer,
+  }));
+}
 function finishRatingBattle(){
   const bs = ratingBattleState;
   clearTimeout(bs.timer);
+  account.lastRatingResult = { date: formatDateJP(new Date()), ranking: buildRatingRanking(bs) };
   if(bs.result==='win'){
     account.ratingWins++;
     account.medals += 40;
@@ -2670,15 +3236,18 @@ function renderRatingBattle(){
   </div>`);
   wrap.appendChild(topBar);
 
-  const arena = el(`<div class="battle-arena-full"><div class="rating-grid"></div></div>`);
-  const grid = arena.querySelector('.rating-grid');
-  bs.combatants.forEach(c=>{
+  const arena = el(`<div class="battle-arena-full"><div class="rating-row"></div></div>`);
+  const row = arena.querySelector('.rating-row');
+  const fx = bs.fx;
+  const order = bs.displayOrder.map(id=> bs.combatants.find(c=>c.id===id));
+  const slotOf = {}; order.forEach((c,i)=>{ slotOf[c.id]=i; });
+
+  order.forEach(c=>{
     const ratio = clamp(c.hp/c.maxHp, 0, 1);
-    const fx = bs.fx;
     const isActorFx = fx && fx.actor===c.id && !fx.buff;
     const isTargetFx = fx && fx.target===c.id;
     const figClass = [
-      isActorFx ? 'lunge-right' : '',
+      isActorFx ? 'rating-attack-pose' : '',
       (isTargetFx && fx.buff) ? (fx.actor===fx.target?'buff-glow':'debuff-glow') : '',
       (isTargetFx && !fx.buff) ? 'hit-shake' : '',
     ].join(' ');
@@ -2688,17 +3257,28 @@ function renderRatingBattle(){
       else if(fx.missed) dmgHTML = `<div class="dmg-float miss">MISS</div>`;
       else if(typeof fx.dmg==='number') dmgHTML = `<div class="dmg-float ${fx.crit?'crit':''}">-${fx.dmg}</div>`;
     }
-    grid.appendChild(el(`<div class="rating-slot ${c.alive?'':'ko'} ${c.isPlayer?'is-player':''}">
+    row.appendChild(el(`<div class="rating-slot ${c.alive?'':'ko'} ${c.isPlayer?'is-player':''}">
       <div class="hp-pill mini">
-        <span class="pname">${c.isPlayer?'★ ':''}${c.name}</span>
+        <span class="pname">${c.isPlayer?'★':''}${c.name}</span>
         <div class="bar"><div class="bar-fill ${hpBarClass(ratio)}" style="width:${ratio*100}%"></div></div>
+        <span class="pnum">${Math.max(0,c.hp)}</span>
       </div>
-      <div class="mon-figure ${figClass}">${monsterSVG(c.mon,c.isPlayer?70:54)}${dmgHTML}</div>
+      <div class="mon-figure ${figClass}">${monsterSVG(c.mon,c.isPlayer?66:50)}${dmgHTML}</div>
     </div>`));
   });
+
+  /* だれがだれを攻撃しているか一目でわかるように、攻撃側→対象へ飛ぶエフェクトを表示 */
+  if(fx && fx.actor && fx.target && fx.actor!==fx.target && !fx.buff && slotOf[fx.actor]!==undefined && slotOf[fx.target]!==undefined){
+    const actorC = bs.combatants.find(c=>c.id===fx.actor);
+    const fromPct = (slotOf[fx.actor]+0.5) / order.length * 100;
+    const toPct = (slotOf[fx.target]+0.5) / order.length * 100;
+    const atkfx = getAttackFx(actorC && actorC.speciesId);
+    row.appendChild(el(`<div class="rating-fx-icon" style="--from:${fromPct}%; --to:${toPct}%; --fxcolor:${atkfx.color};">${atkfx.icon}</div>`));
+  }
+
   if(bs.over && bs.result==='win'){
     const meC = bs.combatants.find(c=>c.isPlayer);
-    grid.appendChild(el(`<div class="win-banner">${meC.mon.name} WIN!!!</div>`));
+    row.appendChild(el(`<div class="win-banner">${meC.mon.name} WIN!!!</div>`));
   }
   wrap.appendChild(arena);
 
@@ -2801,16 +3381,18 @@ const ROOM_TABS = [
   {key:'hunt',     label:'ハント',   icon:'🏹'},
   {key:'friend',   label:'フレンド', icon:'⚔️'},
   {key:'room',     label:'自室',     icon:'🏠'},
+  {key:'shop',     label:'交換所',   icon:'🎪'},
   {key:'transfer', label:'引き継ぎ', icon:'🔑'},
 ];
 let rosterSort = 'total';
 let huntSquadSelection = [];
+let shopVendorKey = 'tenshi';
 
 function renderRoomShell(activeTab){
   const validKeys = ROOM_TABS.map(t=>t.key).concat(['rating']);
   const key = validKeys.includes(activeTab) ? activeTab : 'room';
   const wrap = el(`<div class="screen" style="padding-bottom:96px;"></div>`);
-  const contentMap = {roster:renderRosterTab, hunt:renderHuntTab, friend:renderFriendTab, transfer:renderTransferTab, room:renderRoomTab, rating:renderRatingTab};
+  const contentMap = {roster:renderRosterTab, hunt:renderHuntTab, friend:renderFriendTab, transfer:renderTransferTab, room:renderRoomTab, rating:renderRatingTab, shop:renderShopTab};
   wrap.appendChild(contentMap[key]());
   const tabBar = el(`<div class="tab-bar"></div>`);
   ROOM_TABS.forEach(t=>{
@@ -3054,9 +3636,101 @@ function renderFriendTab(){
   return wrap;
 }
 
+/* ---- 交換所タブ ---- */
+function renderShopTab(){
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
+  wrap.appendChild(el(`<h2 style="color:var(--gold-hi); font-size:1.15rem;">🎪 交換所</h2>`));
+  wrap.appendChild(el(`<div class="card">
+    <div class="tiny dim">討伐証：<b style="color:var(--gold-hi);">${account.proof}</b>　所持メダル：🪙${account.medals}</div>
+  </div>`));
+
+  const vendorRow = el(`<div class="room-picker" id="vendorRow"></div>`);
+  wrap.appendChild(vendorRow);
+  SHOP_VENDORS.forEach(v=>{
+    const btn = el(`<button class="room-picker-item ${shopVendorKey===v.key?'active':''}" style="font-size:1.4rem;" title="${v.name}">${v.icon}</button>`);
+    btn.onclick = ()=>{ shopVendorKey=v.key; render(); };
+    vendorRow.appendChild(btn);
+  });
+
+  const vendor = SHOP_VENDORS.find(v=>v.key===shopVendorKey) || SHOP_VENDORS[0];
+  const line = pick(vendor.lines);
+  wrap.appendChild(el(`<div class="card" style="border-color:${vendor.accent};">
+    <div style="display:flex; gap:10px; align-items:center;">
+      <div style="font-size:2rem;">${vendor.icon}</div>
+      <div>
+        <div style="font-weight:900; color:${vendor.accent};">${vendor.name}の交換所</div>
+        <div class="tiny dim" style="line-height:1.6; margin-top:2px;">「${line}」</div>
+      </div>
+    </div>
+  </div>`));
+
+  const listWrap = el(`<div style="display:flex; flex-direction:column; gap:8px;"></div>`);
+  wrap.appendChild(listWrap);
+
+  vendor.items.forEach(item=>{
+    let statusLabel = '';
+    let disabled = false;
+    if(item.kind==='monster'){
+      const owned = account.exchangedMonsters.includes(item.key);
+      if(owned){ statusLabel = '交換済み'; disabled = true; }
+    }else if(item.kind==='skill'){
+      const owned = account.unlockedSkills.includes(item.key);
+      if(owned){ statusLabel = '解禁済み'; disabled = true; }
+    }else if(item.kind==='snack'){
+      const left = snackUsesLeft(item.key);
+      const cd = snackCooldownText(item.key);
+      statusLabel = `残り使用回数：${left}/${SNACK_ITEM_MAX_USES}`;
+      if(left<=0){ disabled = true; if(cd) statusLabel += `（${cd}）`; }
+    }
+    const currencyIcon = item.currency==='proof' ? '証' : '🪙';
+    const curAmt = item.currency==='proof' ? account.proof : account.medals;
+    if(curAmt<item.cost) disabled = true;
+    const row = el(`<div class="skill-row" style="align-items:flex-start;">
+      <div class="info">
+        <div class="name">${item.name}</div>
+        <div class="desc">${item.desc}</div>
+        ${statusLabel?`<div class="tiny" style="color:var(--gold-hi); margin-top:4px;">${statusLabel}</div>`:''}
+      </div>
+      <button class="btn secondary" style="padding:8px 10px; white-space:nowrap;" ${disabled?'disabled':''}>${currencyIcon}${item.cost}</button>
+    </div>`);
+    row.querySelector('button').onclick = ()=>{
+      const res = purchaseShopItem(item);
+      toast(res.msg);
+      if(res.ok) render();
+    };
+    listWrap.appendChild(row);
+  });
+
+  return wrap;
+}
+
 /* ---- レーティングマッチタブ ---- */
 let ratingSelectedId = null;
 let ratingPreview = null;
+function renderRatingResultsCard(){
+  const last = account.lastRatingResult;
+  const wrap = el(`<div style="display:flex; flex-direction:column; gap:10px;"></div>`);
+  if(last){
+    const card = el(`<div class="rating-result-card">
+      <div class="rrc-title">${last.date}のランクバトル結果</div>
+      <div class="rrc-row"></div>
+    </div>`);
+    const r = card.querySelector('.rrc-row');
+    last.ranking.forEach(item=>{
+      const sp = STARTERS[item.speciesId];
+      r.appendChild(el(`<div class="rrc-slot ${item.isPlayer?'is-player':''}">
+        ${item.rank===1?'<div class="rrc-crown">👑</div>':''}
+        <div class="rrc-rankbadge rank${item.rank}">${item.rank}位</div>
+        <div class="rrc-icon">${monsterSVG(sp||{shape:'kaiju',colorA:'#888',colorB:'#444'},40)}</div>
+        <div class="rrc-name">${item.isPlayer?'YOU':item.name}</div>
+        <div class="rrc-power">⚔️<b>${item.power}</b></div>
+      </div>`));
+    });
+    wrap.appendChild(card);
+  }
+  wrap.appendChild(el(`<div class="card"><p class="tiny dim">通算戦績：${account.ratingWins}勝 ${account.ratingLosses}敗</p></div>`));
+  return wrap;
+}
 function renderRatingTab(){
   const wrap = el(`<div style="display:flex; flex-direction:column; gap:12px;"></div>`);
   const header = el(`<div style="display:flex; align-items:center; gap:8px;">
@@ -3096,7 +3770,7 @@ function renderRatingTab(){
 
   if(!ratingAvailable()){
     wrap.appendChild(el(`<div class="card center-text"><p class="small dim">${ratingCooldownText()}</p></div>`));
-    wrap.appendChild(el(`<div class="card"><p class="tiny dim">戦績：${account.ratingWins}勝 ${account.ratingLosses}敗</p></div>`));
+    wrap.appendChild(renderRatingResultsCard());
     return wrap;
   }
 
@@ -3123,7 +3797,7 @@ function renderRatingTab(){
     startRatingBattle(myEntry, bots);
   };
 
-  wrap.appendChild(el(`<div class="card"><p class="tiny dim">戦績：${account.ratingWins}勝 ${account.ratingLosses}敗</p></div>`));
+  wrap.appendChild(renderRatingResultsCard());
 
   return wrap;
 }
