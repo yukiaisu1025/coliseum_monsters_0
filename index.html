@@ -334,6 +334,9 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 }
 .room-picker-item svg{ width:34px; height:34px; }
 .room-picker-item.active{ border-color:var(--gold); background:rgba(232,171,69,.18); }
+.vendor-intro-card{ display:flex; gap:12px; align-items:center; }
+.vendor-portrait-wrap{ flex-shrink:0; width:72px; height:72px; border-radius:50%; overflow:hidden; background:rgba(0,0,0,.2); }
+.vendor-portrait-wrap svg{ display:block; width:100%; height:100%; }
 
 .transfer-key-box{
   width:100%; min-height:80px; margin-top:10px; padding:10px; border-radius:10px; resize:vertical;
@@ -670,7 +673,7 @@ hr.rule{border:none; border-top:1px dashed rgba(232,171,69,.25); margin:2px 0;}
 <body>
 <div id="app"></div>
 <div id="toast"></div>
-<div id="versionTag">v0.2.0</div>
+<div id="versionTag">v0.2.0.5</div>
 
 <script>
 /* =========================================================================
@@ -1184,7 +1187,8 @@ function genRatingBots(playerPower, count){
 const SAVE_KEY = 'colosseum_save_v1';
 const ACCOUNT_KEY = 'colosseum_account_v1';
 const TOS_KEY = 'colosseum_tos_agree_v1';
-const VERSION = 'v0.2.0';
+const VERSION = 'v0.2.0.5';
+const NOTICE_VERSION = 'v0.2.0'; // お知らせ欄の内容に対応するバージョン（v0.2.0.5では告知なし）
 const RATING_COOLDOWN_MS = 15*60*1000; // 15分（v0.2.0で1時間→15分に短縮）
 
 function freshState(){
@@ -1318,7 +1322,7 @@ function showNoticeModal(){
   sfxNotice();
   const overlay = el(`<div class="modal-overlay">
     <div class="modal-box" style="max-height:80vh; overflow-y:auto;">
-      <div class="modal-title" style="color:var(--gold-hi);">📢 お知らせ（${VERSION}）</div>
+      <div class="modal-title" style="color:var(--gold-hi);">📢 お知らせ（${NOTICE_VERSION}）</div>
       <div class="notice-body">
         <p><b>🥊 レーティングマッチをさらに見やすく</b><br>バトル表示をすばやさ順の横一列に変更し、誰が誰を攻撃しているか一目で分かるようになりました。バトル結果はランキング形式のカードで表示され、挑戦間隔も1時間→15分に短縮しています。</p>
         <p><b>🎪 交換所がオープン</b><br>自室のとなりに新タブ「交換所」が登場。天使・悪魔・アオイ・フワリン、4人の個性豊かな窓口で、新しいモンスターやおやつアイテム、強力なスキルを「討伐証」と交換できます。</p>
@@ -1581,6 +1585,84 @@ function monsterSVG(desc, size=104){
     </defs>
     ${body}
   </svg>`;
+}
+
+/* 交換所の案内役4人のポートレート（オリジナルイラスト・チビキャラ風） */
+function vendorPortraitSVG(key, size=64){
+  let body = '';
+  switch(key){
+    case 'tenshi':
+      body = `
+        <path d="M8 50 Q-8 34 4 62 Q16 78 32 66 Z" fill="#fff" opacity=".95" stroke="#dce8f0" stroke-width="1"/>
+        <path d="M96 50 Q112 34 100 62 Q88 78 72 66 Z" fill="#fff" opacity=".95" stroke="#dce8f0" stroke-width="1"/>
+        <ellipse cx="52" cy="10" rx="16" ry="5" fill="none" stroke="#f0c14b" stroke-width="3"/>
+        <path d="M20 40 Q14 92 30 102 L74 102 Q90 92 84 40 Q84 16 52 14 Q20 16 20 40 Z" fill="#f0c14b"/>
+        <ellipse cx="52" cy="54" rx="25" ry="27" fill="#ffe4cc"/>
+        <path d="M27 42 Q30 20 52 18 Q74 20 77 42 Q68 30 52 32 Q36 30 27 42 Z" fill="#f5c876"/>
+        <path d="M24 46 Q19 72 26 94" stroke="#f0c14b" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M80 46 Q85 72 78 94" stroke="#f0c14b" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <circle cx="42" cy="56" r="4.2" fill="#3a7dc9"/><circle cx="43.4" cy="54.3" r="1.3" fill="#fff"/>
+        <circle cx="62" cy="56" r="4.2" fill="#3a7dc9"/><circle cx="63.4" cy="54.3" r="1.3" fill="#fff"/>
+        <ellipse cx="38" cy="64" rx="4" ry="2.4" fill="#ffb0c0" opacity=".7"/>
+        <ellipse cx="66" cy="64" rx="4" ry="2.4" fill="#ffb0c0" opacity=".7"/>
+        <path d="M47 68 Q52 72 57 68" stroke="#a5703f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M28 96 Q52 88 76 96 L76 104 L28 104 Z" fill="#fff"/>
+        <path d="M44 92 L52 98 L60 92" fill="none" stroke="#cfe0ea" stroke-width="2"/>
+      `; break;
+    case 'akuma':
+      body = `
+        <path d="M16 50 Q4 80 16 102 Q22 100 20 80 Q22 60 16 50 Z" fill="#2a1a30"/>
+        <path d="M88 50 Q100 80 88 102 Q82 100 84 80 Q82 60 88 50 Z" fill="#2a1a30"/>
+        <path d="M22 40 Q24 14 52 12 Q80 14 82 40 Q82 60 74 70 Q78 40 52 38 Q26 40 30 70 Q22 60 22 40 Z" fill="#3a2438"/>
+        <path d="M34 22 L28 6 L41 18 Z" fill="#c0453b"/>
+        <path d="M70 22 L76 6 L63 18 Z" fill="#c0453b"/>
+        <ellipse cx="52" cy="56" rx="25" ry="27" fill="#ffe4cc"/>
+        <path d="M27 44 Q30 24 52 22 Q74 24 77 44 Q66 34 52 36 Q38 34 27 44 Z" fill="#3a2438"/>
+        <circle cx="42" cy="58" r="4.3" fill="#e5637f"/><circle cx="43.4" cy="56.2" r="1.3" fill="#fff"/>
+        <circle cx="62" cy="58" r="4.3" fill="#e5637f"/><circle cx="63.4" cy="56.2" r="1.3" fill="#fff"/>
+        <ellipse cx="38" cy="66" rx="4" ry="2.4" fill="#ff8fa8" opacity=".7"/>
+        <ellipse cx="66" cy="66" rx="4" ry="2.4" fill="#ff8fa8" opacity=".7"/>
+        <path d="M45 70 Q52 78 59 70 Q52 74 45 70 Z" fill="#7a2c18"/>
+        <rect x="40" y="86" width="24" height="6" rx="3" fill="#1c1116"/>
+        <path d="M28 98 Q52 90 76 98 L76 104 L28 104 Z" fill="#1c1116"/>
+        <path d="M44 94 L52 100 L60 94 Z" fill="#c0453b"/>
+      `; break;
+    case 'aoi':
+      body = `
+        <path d="M14 48 Q6 80 16 102 Q22 98 18 80 Q20 60 24 50 Z" fill="#f5ecd0"/>
+        <path d="M90 48 Q98 80 88 102 Q82 98 86 80 Q84 60 80 50 Z" fill="#f5ecd0"/>
+        <ellipse cx="52" cy="58" rx="24" ry="25" fill="#ffe4cc"/>
+        <path d="M28 48 Q30 36 52 36 Q74 36 76 48 Q66 42 52 42 Q38 42 28 48 Z" fill="#e8d9b0"/>
+        <circle cx="43" cy="60" r="4" fill="#3fa0a0"/><circle cx="44.2" cy="58.3" r="1.2" fill="#fff"/>
+        <circle cx="61" cy="60" r="4" fill="#3fa0a0"/><circle cx="62.2" cy="58.3" r="1.2" fill="#fff"/>
+        <ellipse cx="39" cy="67" rx="3.6" ry="2.2" fill="#ffb0a0" opacity=".7"/>
+        <ellipse cx="65" cy="67" rx="3.6" ry="2.2" fill="#ffb0a0" opacity=".7"/>
+        <ellipse cx="52" cy="71" rx="2.4" ry="1.8" fill="#7a4a2c"/>
+        <path d="M36 90 L52 98 L68 90 L60 102 L44 102 Z" fill="#3fa0a0"/>
+        <path d="M30 94 Q52 88 74 94 L74 104 L30 104 Z" fill="#f5ecd0"/>
+        <ellipse cx="52" cy="36" rx="42" ry="10" fill="#a17a58"/>
+        <path d="M20 36 Q24 10 52 8 Q80 10 84 36 Q68 24 52 24 Q36 24 20 36 Z" fill="#c9a06a"/>
+        <circle cx="52" cy="18" r="4" fill="#f0c14b"/>
+      `; break;
+    case 'fuwarin':
+      body = `
+        <ellipse cx="12" cy="58" rx="16" ry="20" fill="#cfe0ea" opacity=".85"/>
+        <ellipse cx="92" cy="58" rx="16" ry="20" fill="#cfe0ea" opacity=".85"/>
+        <path d="M18 44 Q6 40 14 26 Q10 12 28 12 Q34 0 52 6 Q70 0 76 12 Q94 12 90 26 Q98 40 86 44 Q92 60 76 62 Q70 76 52 70 Q34 76 28 62 Q12 60 18 44 Z" fill="#f5ecd0"/>
+        <ellipse cx="52" cy="52" rx="23" ry="24" fill="#ffe4cc"/>
+        <circle cx="44" cy="20" r="8" fill="#8fa9b8"/><circle cx="60" cy="20" r="8" fill="#8fa9b8"/><circle cx="52" cy="20" r="4" fill="#6f8fa0"/>
+        <path d="M40 52 Q44 56 48 52" stroke="#3a7dc9" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M56 52 Q60 56 64 52" stroke="#3a7dc9" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <ellipse cx="38" cy="60" rx="3.6" ry="2.2" fill="#ffb0c0" opacity=".7"/>
+        <ellipse cx="66" cy="60" rx="3.6" ry="2.2" fill="#ffb0c0" opacity=".7"/>
+        <ellipse cx="52" cy="64" rx="2.2" ry="2.8" fill="#c98060"/>
+        <path d="M26 88 Q52 80 78 88 L78 104 L26 104 Z" fill="#f5ecd0"/>
+        <circle cx="52" cy="86" r="6" fill="#8fa9b8"/>
+      `; break;
+    default:
+      body = `<circle cx="52" cy="52" r="30" fill="#8a8a8a"/>`;
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 104 104" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
 }
 
 /* =========================================================================
@@ -3647,20 +3729,18 @@ function renderShopTab(){
   const vendorRow = el(`<div class="room-picker" id="vendorRow"></div>`);
   wrap.appendChild(vendorRow);
   SHOP_VENDORS.forEach(v=>{
-    const btn = el(`<button class="room-picker-item ${shopVendorKey===v.key?'active':''}" style="font-size:1.4rem;" title="${v.name}">${v.icon}</button>`);
+    const btn = el(`<button class="room-picker-item ${shopVendorKey===v.key?'active':''}" title="${v.name}">${vendorPortraitSVG(v.key,36)}</button>`);
     btn.onclick = ()=>{ shopVendorKey=v.key; render(); };
     vendorRow.appendChild(btn);
   });
 
   const vendor = SHOP_VENDORS.find(v=>v.key===shopVendorKey) || SHOP_VENDORS[0];
   const line = pick(vendor.lines);
-  wrap.appendChild(el(`<div class="card" style="border-color:${vendor.accent};">
-    <div style="display:flex; gap:10px; align-items:center;">
-      <div style="font-size:2rem;">${vendor.icon}</div>
-      <div>
-        <div style="font-weight:900; color:${vendor.accent};">${vendor.name}の交換所</div>
-        <div class="tiny dim" style="line-height:1.6; margin-top:2px;">「${line}」</div>
-      </div>
+  wrap.appendChild(el(`<div class="card vendor-intro-card" style="border-color:${vendor.accent};">
+    <div class="vendor-portrait-wrap">${vendorPortraitSVG(vendor.key,72)}</div>
+    <div>
+      <div style="font-weight:900; color:${vendor.accent};">${vendor.name}の交換所</div>
+      <div class="tiny dim" style="line-height:1.6; margin-top:2px;">「${line}」</div>
     </div>
   </div>`));
 
